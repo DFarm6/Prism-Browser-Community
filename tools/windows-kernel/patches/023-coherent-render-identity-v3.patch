@@ -1,0 +1,181 @@
+--- a/third_party/blink/renderer/core/dom/document.cc
++++ b/third_party/blink/renderer/core/dom/document.cc
+@@ -35,6 +35,7 @@
+ #include <utility>
+ 
+ #include "base/auto_reset.h"
++#include "base/command_line.h"
+ #include "base/containers/adapters.h"
+ #include "base/containers/contains.h"
+ #include "base/debug/dump_without_crashing.h"
+@@ -42,6 +43,7 @@
+ #include "base/metrics/histogram_functions.h"
+ #include "base/notreached.h"
+ #include "base/rand_util.h"
++#include "base/strings/string_number_conversions.h"
+ #include "base/task/single_thread_task_runner.h"
+ #include "base/time/time.h"
+ #include "base/trace_event/trace_event.h"
+@@ -49,6 +51,7 @@
+ #include "cc/animation/animation_timeline.h"
+ #include "cc/input/overscroll_behavior.h"
+ #include "cc/input/scroll_snap_data.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "mojo/public/cpp/bindings/lib/wtf_hash_util.h"
+ #include "mojo/public/cpp/bindings/pending_remote.h"
+ #include "mojo/public/cpp/bindings/remote.h"
+@@ -413,6 +416,14 @@
+ namespace {
+ 
+ constexpr char kSelectName[] = "select";
++
++double PrismRenderIdentityNoise(uint32_t fingerprint, uint32_t salt) {
++  uint32_t state = fingerprint ^ salt;
++  state ^= state << 13;
++  state ^= state >> 17;
++  state ^= state << 5;
++  return static_cast<double>(state & 0xffffu) / 65535.0;
++}
+ 
+ class IntrinsicSizeResizeObserverDelegate : public ResizeObserver::Delegate {
+  public:
+@@ -1097,8 +1108,25 @@
+   if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled()) {
+     // Precompute -0.0003% to 0.0003% noise factor for get*ClientRect*()
+     // fingerprinting.
+-    noise_factor_x_ = 1 + (base::RandDouble() - 0.5) * 0.000003;
+-    noise_factor_y_ = 1 + (base::RandDouble() - 0.5) * 0.000003;
++    const base::CommandLine* command_line =
++        base::CommandLine::ForCurrentProcess();
++    uint32_t fingerprint = 0;
++    const bool coherent_render_identity =
++        command_line->GetSwitchValueASCII(
++            switches::kFingerprintRenderIdentity) == "v3" &&
++        base::StringToUint(
++            command_line->GetSwitchValueASCII(switches::kFingerprint),
++            &fingerprint);
++    const double noise_x =
++        coherent_render_identity
++            ? PrismRenderIdentityNoise(fingerprint, 0x9e3779b9u)
++            : base::RandDouble();
++    const double noise_y =
++        coherent_render_identity
++            ? PrismRenderIdentityNoise(fingerprint, 0x85ebca6bu)
++            : base::RandDouble();
++    noise_factor_x_ = 1 + (noise_x - 0.5) * 0.000003;
++    noise_factor_y_ = 1 + (noise_y - 0.5) * 0.000003;
+   }
+   if (base::FeatureList::IsEnabled(features::kDelayAsyncScriptExecution) &&
+       features::kDelayAsyncScriptExecutionDelayByDefaultParam.Get()) {
+--- a/third_party/blink/renderer/modules/speech/speech_synthesis.cc
++++ b/third_party/blink/renderer/modules/speech/speech_synthesis.cc
+@@ -64,7 +64,8 @@
+       base::CommandLine::ForCurrentProcess();
+   const std::string render_identity = command_line->GetSwitchValueASCII(
+       switches::kFingerprintRenderIdentity);
+-  if (render_identity != "v1" && render_identity != "v2") {
++  if (render_identity != "v1" && render_identity != "v2" &&
++      render_identity != "v3") {
+     return true;
+   }
+   const std::string expected_language =
+--- a/third_party/blink/renderer/platform/fonts/font_cache.cc
++++ b/third_party/blink/renderer/platform/fonts/font_cache.cc
+@@ -247,7 +247,8 @@
+     const std::string& requested_family) {
+   const std::string render_identity = command_line.GetSwitchValueASCII(
+       switches::kFingerprintRenderIdentity);
+-  if (render_identity != "v1" && render_identity != "v2") {
++  if (render_identity != "v1" && render_identity != "v2" &&
++      render_identity != "v3") {
+     return false;
+   }
+ 
+--- a/third_party/blink/renderer/modules/webaudio/offline_audio_context.cc
++++ b/third_party/blink/renderer/modules/webaudio/offline_audio_context.cc
+@@ -68,8 +68,9 @@
+ void ApplyRenderIdentityToAudioBuffer(AudioBuffer* buffer) {
+   const base::CommandLine* command_line =
+       base::CommandLine::ForCurrentProcess();
+-  if (command_line->GetSwitchValueASCII(
+-          switches::kFingerprintRenderIdentity) != "v1") {
++  const std::string render_identity = command_line->GetSwitchValueASCII(
++      switches::kFingerprintRenderIdentity);
++  if (render_identity != "v1" && render_identity != "v3") {
+     return;
+   }
+   uint32_t fingerprint = 0;
+--- a/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
++++ b/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
+@@ -204,8 +204,9 @@
+   }
+   const base::CommandLine* command_line =
+       base::CommandLine::ForCurrentProcess();
+-  if (command_line->GetSwitchValueASCII(
+-          switches::kFingerprintRenderIdentity) != "v1") {
++  const std::string render_identity = command_line->GetSwitchValueASCII(
++      switches::kFingerprintRenderIdentity);
++  if (render_identity != "v1" && render_identity != "v3") {
+     return;
+   }
+   uint32_t fingerprint = 0;
+--- a/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
++++ b/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
+@@ -13,6 +13,7 @@
+ 
+ #include "base/check.h"
+ #include "base/check_op.h"
++#include "base/command_line.h"
+ #include "base/location.h"
+ #include "base/memory/scoped_refptr.h"
+ #include "base/memory/weak_ptr.h"
+@@ -20,12 +21,14 @@
+ #include "base/notreached.h"
+ #include "base/numerics/checked_math.h"
+ #include "base/numerics/safe_conversions.h"
++#include "base/strings/string_number_conversions.h"
+ #include "base/task/single_thread_task_runner.h"
+ #include "base/time/time.h"
+ #include "cc/paint/paint_canvas.h"
+ #include "cc/paint/paint_flags.h"
+ #include "cc/paint/paint_image.h"
+ #include "components/viz/common/resources/shared_image_format_utils.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "third_party/abseil-cpp/absl/cleanup/cleanup.h"
+ #include "third_party/blink/public/common/metrics/document_update_reason.h"
+ #include "third_party/blink/public/mojom/devtools/console_message.mojom-blink-forward.h"
+@@ -111,6 +114,26 @@
+ class MemoryManagedPaintCanvas;
+ 
+ namespace {
++
++double PrismCanvasTextOffset() {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  if (command_line->GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) != "v3") {
++    return 0;
++  }
++  uint32_t fingerprint = 0;
++  if (!base::StringToUint(
++          command_line->GetSwitchValueASCII(switches::kFingerprint),
++          &fingerprint)) {
++    return 0;
++  }
++  uint32_t state = fingerprint ^ 0x27d4eb2du;
++  state ^= state << 13;
++  state ^= state >> 17;
++  state ^= state << 5;
++  return static_cast<double>(1u + (state % 8u)) / 64.0;
++}
+ 
+ wgpu::TextureFormat AsDawnType(const viz::SharedImageFormat& format) {
+   // NOTE: Canvas2D can be only RGBA_8888, BGRA_8888, or F16.
+@@ -1034,6 +1057,7 @@
+   if (!std::isfinite(x) || !std::isfinite(y)) {
+     return;
+   }
++  x += PrismCanvasTextOffset();
+   if (max_width && (!std::isfinite(*max_width) || *max_width <= 0)) {
+     return;
+   }

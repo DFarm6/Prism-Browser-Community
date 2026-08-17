@@ -1,0 +1,24 @@
+--- a/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
++++ b/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
+@@ -135,7 +135,7 @@ double PrismCanvasTextOffset(uint32_t salt) {
+   state ^= state >> 15;
+   state *= 0x846ca68bu;
+   state ^= state >> 16;
+-  constexpr uint32_t kCanvasOffsetMask = 0x0fu;
++  constexpr uint32_t kCanvasOffsetMask = 0x3fu;
+   return static_cast<double>(1u + (state & kCanvasOffsetMask)) / 64.0;
+ }
+ 
+--- a/third_party/blink/renderer/core/html/canvas/html_canvas_element.cc
++++ b/third_party/blink/renderer/core/html/canvas/html_canvas_element.cc
+@@ -1309,10 +1309,6 @@ String HTMLCanvasElement::ToDataURLInternal(
+     if (!data_buffer)
+       return String("data:,");
+ 
+-    if (IsRenderingContext2D()) {
+-      data_buffer->ApplyPrismCanvasSerializationIdentity();
+-    }
+-
+     String data_url = data_buffer->ToDataURL(encoding_mime_type, quality);
+     base::TimeDelta elapsed_time = base::TimeTicks::Now() - start_time;
+     float sqrt_pixels =

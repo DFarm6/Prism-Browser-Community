@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "channel": "beta",
+  "distributionMode": "internal-unsigned",
+  "manifestUrl": "https://updates.example.com/prism/beta/latest.json",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\n替换为 Beta 通道 Ed25519 公钥\n-----END PUBLIC KEY-----\n"
+}

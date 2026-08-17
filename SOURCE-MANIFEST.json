@@ -1,0 +1,1487 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-17T06:50:45.541Z",
+  "edition": "community-source",
+  "files": [
+    {
+      "path": ".gitignore",
+      "size": 82,
+      "sha256": "9f297ca18330998615a41a745be285bd0a4007e398dad5d916bbba2f5d63ce35"
+    },
+    {
+      "path": "LICENSE",
+      "size": 1083,
+      "sha256": "c13aa27bd8d539b6c9d91867735e35a7f6b1326d3171e458de611647ebae102b"
+    },
+    {
+      "path": "README.en.md",
+      "size": 10262,
+      "sha256": "79c3b18f9efae2282f68f3cfa6324ada038325bddf1479c4335133dbd2cc1415"
+    },
+    {
+      "path": "README.md",
+      "size": 9152,
+      "sha256": "c565efb205445f1b7a19edb18edfb00d870fb9635ac2ad60d5de310ec74be873"
+    },
+    {
+      "path": "build/entitlements.mac.inherit.plist",
+      "size": 321,
+      "sha256": "a2f94dda68da5a6d994132cfc3ee49f07b83bccc5c1b9d5653e2e5fdb228ff41"
+    },
+    {
+      "path": "build/entitlements.mac.plist",
+      "size": 321,
+      "sha256": "a2f94dda68da5a6d994132cfc3ee49f07b83bccc5c1b9d5653e2e5fdb228ff41"
+    },
+    {
+      "path": "build/icon.icns",
+      "size": 1664059,
+      "sha256": "eba8f9102037d2d78d51e8d98455e3286dadb5e12609d40e97dd756fea5607f0"
+    },
+    {
+      "path": "build/icon.ico",
+      "size": 94502,
+      "sha256": "b5762d05d1054b74df1753538e40cee150f0472425587a67407a672ee7844e23"
+    },
+    {
+      "path": "build/icon.iconset/icon_128x128.png",
+      "size": 17851,
+      "sha256": "8d9f55d6b2456f43f874c7722b3cf07395376bab9dd5e16f14a9838193e24f46"
+    },
+    {
+      "path": "build/icon.iconset/icon_128x128@2x.png",
+      "size": 63585,
+      "sha256": "9c104e3b40d97a8197a8bb534629fa8f56581a43cc75d3f3a8f8972ac3d26429"
+    },
+    {
+      "path": "build/icon.iconset/icon_16x16.png",
+      "size": 690,
+      "sha256": "693ced43fa32fe6ef1eaee649a1c27d1328157b5621633ddf237bac2c189f013"
+    },
+    {
+      "path": "build/icon.iconset/icon_16x16@2x.png",
+      "size": 1780,
+      "sha256": "789ec447ddf48f27d69e9a305972918cc8bd0a78720de2fa7231df0d9af088ed"
+    },
+    {
+      "path": "build/icon.iconset/icon_256x256.png",
+      "size": 63585,
+      "sha256": "9c104e3b40d97a8197a8bb534629fa8f56581a43cc75d3f3a8f8972ac3d26429"
+    },
+    {
+      "path": "build/icon.iconset/icon_256x256@2x.png",
+      "size": 251121,
+      "sha256": "c2d5c93504e87b351127b161704a3c0c78dadbb4431d27a9d1c772e6855a7c3c"
+    },
+    {
+      "path": "build/icon.iconset/icon_32x32.png",
+      "size": 1780,
+      "sha256": "789ec447ddf48f27d69e9a305972918cc8bd0a78720de2fa7231df0d9af088ed"
+    },
+    {
+      "path": "build/icon.iconset/icon_32x32@2x.png",
+      "size": 5465,
+      "sha256": "95ee8af790bb1bd7536e9861f7da45cad53ffb13f0f2cba6f6764a67e37a5d66"
+    },
+    {
+      "path": "build/icon.iconset/icon_512x512.png",
+      "size": 251121,
+      "sha256": "c2d5c93504e87b351127b161704a3c0c78dadbb4431d27a9d1c772e6855a7c3c"
+    },
+    {
+      "path": "build/icon.iconset/icon_512x512@2x.png",
+      "size": 1005870,
+      "sha256": "eaed32a7128ceffbea5d89bbe1e9c7298d7ff000518bbdef97d957314aa56d2e"
+    },
+    {
+      "path": "build/icon.png",
+      "size": 1294457,
+      "sha256": "21e94b6466ae22af699769e1a6ba219a82dc079f83a29d777a55209b0ae44467"
+    },
+    {
+      "path": "build/license-config.example.json",
+      "size": 225,
+      "sha256": "d6075f9c61992ab795744341c296a2ccbceda0a00eb06c09e62c072ec078aa63"
+    },
+    {
+      "path": "build/update-config.beta.example.json",
+      "size": 271,
+      "sha256": "ebb66adcb12038abb37feb687f0336d3c6efed0e9cc0315f4321a84ccb010f6b"
+    },
+    {
+      "path": "build/update-config.example.json",
+      "size": 252,
+      "sha256": "6a3815782de2ae669c9b073addc1c6ad354f361f350658234851f904719bd4e6"
+    },
+    {
+      "path": "electron.vite.config.ts",
+      "size": 610,
+      "sha256": "d5a18188d4890c8a59956f157d0675520e874468c477adf7f4457d4999cc57a6"
+    },
+    {
+      "path": "package-lock.json",
+      "size": 258355,
+      "sha256": "021174a094a5a01fe2de8fd2f41ccc7fefec0d6ac44838644f8b70fa2d3fee01"
+    },
+    {
+      "path": "package.json",
+      "size": 4744,
+      "sha256": "8333369870f96993259ffe078b0f0a1350b4714721c8033a073491e88ef76e05"
+    },
+    {
+      "path": "src/main/announcement-manager.ts",
+      "size": 7333,
+      "sha256": "2801664ede5cbb8420860364cf77cecab9ba5eac2a7c83df091303aebd96b3c2"
+    },
+    {
+      "path": "src/main/app-logger.ts",
+      "size": 2036,
+      "sha256": "96a0afb28b0d0b5a9cd7bde552f05456dd459dbc43ab3acdd6beec185b90bc65"
+    },
+    {
+      "path": "src/main/app-session.test.ts",
+      "size": 3063,
+      "sha256": "f07e3cbfc2c512d9e7992e8fa5d364f0cd21d8434a31a11b0d03e19a878cef69"
+    },
+    {
+      "path": "src/main/app-session.ts",
+      "size": 5267,
+      "sha256": "4e70be3817a078bd72af4f85cefe111a8b689ef402cf5bc81f5c91cc91a3dd36"
+    },
+    {
+      "path": "src/main/automation-audit.ts",
+      "size": 1526,
+      "sha256": "d015dc2e7d62ed305778d262788c572c1a126ebca74a8000681058aa285b0c4e"
+    },
+    {
+      "path": "src/main/browser-control-session.ts",
+      "size": 12404,
+      "sha256": "de6b51e6225fdd510f88e947184ab66908abacfa2adf8f275758274113766708"
+    },
+    {
+      "path": "src/main/browser-launcher.test.ts",
+      "size": 20672,
+      "sha256": "1a99ea2805099c245241bffff03841323ac853baa062f0e4e45a651c458770cb"
+    },
+    {
+      "path": "src/main/browser-launcher.ts",
+      "size": 42841,
+      "sha256": "abe4e0cdee798f7b5125e3f22684995533e0af982014fbdfbdc161cd8708692c"
+    },
+    {
+      "path": "src/main/browser-locator.ts",
+      "size": 13512,
+      "sha256": "1abd22d9793254e85d6beda88e0d09c37a78452ee0b1ffb5fedddc402a9efa96"
+    },
+    {
+      "path": "src/main/cookie-file.test.ts",
+      "size": 1567,
+      "sha256": "6b8fbe14619dbed753fa5a8b059183aa12cb20003fc14edf59c9b545d370608c"
+    },
+    {
+      "path": "src/main/cookie-file.ts",
+      "size": 4146,
+      "sha256": "ab7318d67b516807788f829e10f315d06547747d54927938137d5e5d7fdeaa98"
+    },
+    {
+      "path": "src/main/cookie-manager.integration.test.ts",
+      "size": 1688,
+      "sha256": "bc8ad46a069a21719bba5298d94b5238aad00e07853579cd610ff4bb28ca8e17"
+    },
+    {
+      "path": "src/main/cookie-manager.ts",
+      "size": 7351,
+      "sha256": "a93cf9a53820c45618bdbf98818bcce46b3879c9d9d7237f8c1ef236e9f9da30"
+    },
+    {
+      "path": "src/main/device-identity.ts",
+      "size": 3312,
+      "sha256": "3781fba1ea060b50588f25c2248bf9939d050826e14ccd53fda0c47d13d8dff6"
+    },
+    {
+      "path": "src/main/electron-device-key-protector.ts",
+      "size": 1385,
+      "sha256": "d9f90c5e9e98acc4bdf488c1f38a2eccd112e487c02d0ca7a10335fa9b72c20c"
+    },
+    {
+      "path": "src/main/extension-store.test.ts",
+      "size": 2229,
+      "sha256": "fd0df3a5a81ae0e82634652f786e1a0fbbb12a7753004d78266f1d30f296f007"
+    },
+    {
+      "path": "src/main/extension-store.ts",
+      "size": 5955,
+      "sha256": "3421d16277946eadf24f8013463396711f70eff20f4057b88b8bb0816ef44140"
+    },
+    {
+      "path": "src/main/host-hardware.ts",
+      "size": 955,
+      "sha256": "eb8c35d6f751b3756ed9d12112f1054fa7b4390b7108ec1e6e8d92bdc3e27629"
+    },
+    {
+      "path": "src/main/index.ts",
+      "size": 9243,
+      "sha256": "8251650c4be2f95b9117911048f8b7fa26fcf7b086732349d6c15a460fdb9fe3"
+    },
+    {
+      "path": "src/main/ipc.ts",
+      "size": 24010,
+      "sha256": "b965eceb05ba5a73e03de9cf678a347cda06ca34fca25605bfb9da2d6a6f3817"
+    },
+    {
+      "path": "src/main/kernel-catalog.ts",
+      "size": 950,
+      "sha256": "de140e79f7f188caac9c965eac17b7f1ddfe1f42d804e8fa588f4b4058eee8cb"
+    },
+    {
+      "path": "src/main/kernel-integrity.ts",
+      "size": 8217,
+      "sha256": "8a1cffa70da7806ef8ce50e698ea670f366ba0323ad263992d6c501927cea88b"
+    },
+    {
+      "path": "src/main/kernel-manager.ts",
+      "size": 37399,
+      "sha256": "fb31891fd8efa6e6291cf95ffd81220654ba4a191757fc2eee1a1a06ddbed279"
+    },
+    {
+      "path": "src/main/launch-args.ts",
+      "size": 4445,
+      "sha256": "3dbf48c2d1e4b314cea1f3cf292152989e5a0426bf36b5c4e6b7ef2bd5e4c496"
+    },
+    {
+      "path": "src/main/license-crypto.ts",
+      "size": 4957,
+      "sha256": "63fffedfc14af966e122c27f5ae991487d5302d1495327a2ec4a5b8e42374ea2"
+    },
+    {
+      "path": "src/main/license-manager.ts",
+      "size": 23018,
+      "sha256": "eaa5db23d8ee65b71a4d4703a4211915699730b4caecd524da26b234503062cd"
+    },
+    {
+      "path": "src/main/mcp-audit.ts",
+      "size": 1646,
+      "sha256": "38d3b1d8d23ef89b7c230ad32d67572e7229c998cbf78b57ab012e3dc8e38017"
+    },
+    {
+      "path": "src/main/mcp-control-manager.test.ts",
+      "size": 7351,
+      "sha256": "f67c8a06ae4f895c46a9890e1f750bb64a8daf25fe2f52bff279d13b8ed179b1"
+    },
+    {
+      "path": "src/main/mcp-control-manager.ts",
+      "size": 7435,
+      "sha256": "cee6539fd3094a0d1d749c1c9a45fe8f5cc9058128f617bd2656a43e95e26439"
+    },
+    {
+      "path": "src/main/mcp-permission-store.ts",
+      "size": 4020,
+      "sha256": "8972d8bfe08f9b6e29c668b8df387400b8ea338fcb16f54d39be800e9ee8883f"
+    },
+    {
+      "path": "src/main/pro-agent-integrity.ts",
+      "size": 5885,
+      "sha256": "a85844561845a7327db5403a14233c285ea4b68a4b93ee7476de422982448e5b"
+    },
+    {
+      "path": "src/main/pro-agent-manager.ts",
+      "size": 14928,
+      "sha256": "a87240cdfb60b8fae52bca223fe265d2d738be54b19e4772c5272b6ec3d540be"
+    },
+    {
+      "path": "src/main/process-inspector.integration.test.ts",
+      "size": 2311,
+      "sha256": "00874ce40a7da252d50fa0905806b7e0ecfac7461740ce4010c52ec736e5092c"
+    },
+    {
+      "path": "src/main/process-inspector.test.ts",
+      "size": 1938,
+      "sha256": "7dbf7f25a141114bff39f62d9d9813148d9ab3dd6a7108d55c6d49ec4b3d65e4"
+    },
+    {
+      "path": "src/main/process-inspector.ts",
+      "size": 4162,
+      "sha256": "61d62cea38384bba9c6e288f80fd653bba25b036bd6bb638f3027a616a2f0c54"
+    },
+    {
+      "path": "src/main/profile-backup.test.ts",
+      "size": 4435,
+      "sha256": "3d637535153d8e5cbc4ae2fecbc09840b528b6071919401773b1817932e4e2d8"
+    },
+    {
+      "path": "src/main/profile-backup.ts",
+      "size": 8945,
+      "sha256": "76b18ba4ca656f76125ff65a05d722a551608baf15564c42fbda14bdd48fa188"
+    },
+    {
+      "path": "src/main/profile-batch-csv.ts",
+      "size": 9538,
+      "sha256": "18469adc9e4f3b376eb74316e1b2c510b7daa91ffa75f59952301eb66814295e"
+    },
+    {
+      "path": "src/main/profile-data.test.ts",
+      "size": 2729,
+      "sha256": "de8803b70a2a4813f7ad53d019f9c908e235db933f147736625fdc9c8b929b63"
+    },
+    {
+      "path": "src/main/profile-data.ts",
+      "size": 2765,
+      "sha256": "b14f3ced302eb619a6aa25929d88c1dbd1fff14a76927d292c3f285e7b8367d4"
+    },
+    {
+      "path": "src/main/profile-secrets.test.ts",
+      "size": 1660,
+      "sha256": "08bebdf92f6b0bf484201dd4c7957bc7bd38d4cd4b4aa528d4f81ad7dfb8ac99"
+    },
+    {
+      "path": "src/main/profile-secrets.ts",
+      "size": 1437,
+      "sha256": "eb675d33b465602609a2d65ef34b359384205ccae944b387279f2507097c2eb0"
+    },
+    {
+      "path": "src/main/profile-store.test.ts",
+      "size": 16609,
+      "sha256": "1654dd0a3cbb59119d67a4cdcab31b0d5cf76b930b6e595b211fae5b090795a4"
+    },
+    {
+      "path": "src/main/profile-store.ts",
+      "size": 31480,
+      "sha256": "cc4ce092aaa6267f174066c1157245f346138477b7cef9c19e39de2ea4f1bd72"
+    },
+    {
+      "path": "src/main/profile-transfer.ts",
+      "size": 2495,
+      "sha256": "b346cd1fedbc91fe6aac1a5ae2421f1c66e168a5afb7cad9f30e9f3bb8a6d17f"
+    },
+    {
+      "path": "src/main/proxy-bridge.test.ts",
+      "size": 7828,
+      "sha256": "ce5711f290344abbfe6969bc7ea564f9897140bd277538cd19b511e4ed54b58c"
+    },
+    {
+      "path": "src/main/proxy-bridge.ts",
+      "size": 1673,
+      "sha256": "40acd8360715a26d490bcbbccb20c1a0e08ec6e0cecc6d9b1a6f47a0370c7210"
+    },
+    {
+      "path": "src/main/proxy-tester.test.ts",
+      "size": 3766,
+      "sha256": "befda1d625ed807b7d34cc3dad89100bdaa2b57df8f6a4d944007c437c833da2"
+    },
+    {
+      "path": "src/main/proxy-tester.ts",
+      "size": 9478,
+      "sha256": "aeb9f5cee2f7cb31da62af67de89226985870162b330738eb557538f8226c659"
+    },
+    {
+      "path": "src/main/redaction.ts",
+      "size": 467,
+      "sha256": "df2f63953bec0bbba1936501160c52a962ec377637f94e321ec6e48993286f61"
+    },
+    {
+      "path": "src/main/scheduler-audit.ts",
+      "size": 1494,
+      "sha256": "9ea8b96d1abf825e910efa5530eb6b3f31282e63ade3ab1619c47ed80103aabb"
+    },
+    {
+      "path": "src/main/scheduler-manager.test.ts",
+      "size": 6770,
+      "sha256": "af8db35573904012e68fc4307a495c800038c12a421dc85f248f5e60355e7479"
+    },
+    {
+      "path": "src/main/scheduler-manager.ts",
+      "size": 8582,
+      "sha256": "905059e674828e918a7dd46198682c1cb0deacbd5884e3c0aeea9ec1cbaed333"
+    },
+    {
+      "path": "src/main/scheduler-store.ts",
+      "size": 10229,
+      "sha256": "e47037fba128dc92f245d4a7aebc167802477e3ef7ffb8b4759841bc495c9212"
+    },
+    {
+      "path": "src/main/secret-codec.ts",
+      "size": 1078,
+      "sha256": "a2422c83749c422ff8671e107a514b22bda36db220172825dd8c4b52e8540544"
+    },
+    {
+      "path": "src/main/settings-store.test.ts",
+      "size": 1240,
+      "sha256": "cc2139079f9e9b8cdd53aa130c28802b52e37ad7481665284205b5bd923f24ee"
+    },
+    {
+      "path": "src/main/settings-store.ts",
+      "size": 1974,
+      "sha256": "807c1e47bb19ae5c1922c8504e2f2164eaf2d2f11ae21ab01910be20efc91f54"
+    },
+    {
+      "path": "src/main/update-manager.ts",
+      "size": 13812,
+      "sha256": "bd4f24299e216abf5ea38690a8775b9dcdf5c7a9409e15c4eec671c1dcf432f0"
+    },
+    {
+      "path": "src/main/workspace-migration.test.ts",
+      "size": 8046,
+      "sha256": "58a4a4fab94ffcdf5b40e79e89456ad7c5ee8c74a2a41e72958f0f29cfc55d2c"
+    },
+    {
+      "path": "src/main/workspace-migration.ts",
+      "size": 24067,
+      "sha256": "063d9073ef559d1fb1a3f90637afb45facb26ae3dc56cb7889ab2574548ec958"
+    },
+    {
+      "path": "src/preload/index.ts",
+      "size": 8205,
+      "sha256": "8e3607824e48ee6a0e66815830e73b72193e44762819dfd03ccff3853b300389"
+    },
+    {
+      "path": "src/renderer/index.html",
+      "size": 352,
+      "sha256": "06bf191212c8787c26ec3d622ff7abde871547550996245ad53db19f54aafd39"
+    },
+    {
+      "path": "src/renderer/src/App.tsx",
+      "size": 53906,
+      "sha256": "9ac85336ca832c46e48e4979ba3d4010141eefd02ad597c4a441c72732997b46"
+    },
+    {
+      "path": "src/renderer/src/AutomationModal.tsx",
+      "size": 4691,
+      "sha256": "62b033d49ab3ddcc65fd44fabb6c418a7d4fc498ece479cbc71dfab6aff300e2"
+    },
+    {
+      "path": "src/renderer/src/BatchResultModal.tsx",
+      "size": 1104,
+      "sha256": "30abab133c7f9c3f9dba12e519f21cf31aeb301c300752699e7920ef3ea0fc7b"
+    },
+    {
+      "path": "src/renderer/src/CrashHistoryModal.tsx",
+      "size": 2267,
+      "sha256": "f6a7b9126afee25b534050087c85b20234f99cbfd0a59e43e690c3fe677cfcba"
+    },
+    {
+      "path": "src/renderer/src/ExtensionManagerModal.tsx",
+      "size": 4261,
+      "sha256": "b92fdcbb979e82875bf73d4384283150d97c9368b0bc793993a9f8b093d08338"
+    },
+    {
+      "path": "src/renderer/src/KernelManagerModal.tsx",
+      "size": 9645,
+      "sha256": "988ff919f0c6ce29b1b6d1cb21c09611f80cb425d56e334b69103d9ef01c6b3f"
+    },
+    {
+      "path": "src/renderer/src/LaunchDiagnosticsModal.tsx",
+      "size": 2029,
+      "sha256": "b18dd94621ff8f631307bf996d278f0bccc512eb982ae285544fef9776517474"
+    },
+    {
+      "path": "src/renderer/src/McpModal.tsx",
+      "size": 6562,
+      "sha256": "17a49618015c56a10db0b712effc9c57d680cc62ff3f87384a0fd5767a76a88d"
+    },
+    {
+      "path": "src/renderer/src/PlanModal.tsx",
+      "size": 6388,
+      "sha256": "6c913a6eeb70fee391b28acd9fb624b48dde5e6b7ab0ae56f79d1f08eb1332ff"
+    },
+    {
+      "path": "src/renderer/src/ProfileDataModal.tsx",
+      "size": 6450,
+      "sha256": "92c6dd2b4fa71aa13d0a9c9a3d423b0bd016a8b326b39c240606471f338b14c1"
+    },
+    {
+      "path": "src/renderer/src/ProfileEditor.tsx",
+      "size": 28237,
+      "sha256": "0ad8259bb94e04e1c2dba39293385512a205f51a331159c86e9967f607ce6f8d"
+    },
+    {
+      "path": "src/renderer/src/RecycleBinModal.tsx",
+      "size": 6987,
+      "sha256": "415cf41f52a47c2d178dcf4583db05f8626cc3473914773f309316c0ddf7beb2"
+    },
+    {
+      "path": "src/renderer/src/SchedulerModal.tsx",
+      "size": 11667,
+      "sha256": "890ba896a1f4e202629febbe27ad2f85c986074e39275b27becddc4b6ffa0636"
+    },
+    {
+      "path": "src/renderer/src/UpdateModal.tsx",
+      "size": 3700,
+      "sha256": "0f45103fd81795dd6e38de37842391d3da8b66aea319452233a21fb59652b02a"
+    },
+    {
+      "path": "src/renderer/src/WorkspaceMigrationModal.tsx",
+      "size": 3581,
+      "sha256": "415c5902bf4c7bcdd6f1380d97ea2544df1c8e80b56ed18a07fe60ca7be3628e"
+    },
+    {
+      "path": "src/renderer/src/batch-launch-order.test.ts",
+      "size": 1036,
+      "sha256": "270b70d05bb78d7e5da5d2e50fa5c90fe7769d39599c4dc7f195a53daf0e396f"
+    },
+    {
+      "path": "src/renderer/src/batch-launch-order.ts",
+      "size": 499,
+      "sha256": "9040b95342754de4a0c0760b79ff461fb3daa2ecc1776d0d3462c5adee4f1ee5"
+    },
+    {
+      "path": "src/renderer/src/env.d.ts",
+      "size": 175,
+      "sha256": "e192631be4846028e5c737f649a03cd006f89d31fb57a26ebba3844ba18bc764"
+    },
+    {
+      "path": "src/renderer/src/main.tsx",
+      "size": 847,
+      "sha256": "517173d7ccba53f8e8bfba0859e4ac724764714c69b53ad3b7df1fbf603a5d24"
+    },
+    {
+      "path": "src/renderer/src/styles.css",
+      "size": 18273,
+      "sha256": "7bc0ba91014faa14ed09cf2a94fc715eeaaf4b10eba842604b79cccf28ad6476"
+    },
+    {
+      "path": "src/shared/defaults.ts",
+      "size": 2279,
+      "sha256": "90dea6906a2c8c252781e33ce8fd30f4329c0fad5c42fb2e548095395b926949"
+    },
+    {
+      "path": "src/shared/fingerprint-consistency.test.ts",
+      "size": 2659,
+      "sha256": "b23100ae608d1c7cb342f498a84e9dc403511d138c2e632d10370ca6e7228612"
+    },
+    {
+      "path": "src/shared/fingerprint-consistency.ts",
+      "size": 2103,
+      "sha256": "c536933bee667d4d06e63c769a9eb971c4f7ea603b3ccc819ba7df6d200f3f3f"
+    },
+    {
+      "path": "src/shared/hardware-profiles.test.ts",
+      "size": 5400,
+      "sha256": "f5268cef31617f5b9757e7d32430af404a423feacffd443c75710b12c1e4183f"
+    },
+    {
+      "path": "src/shared/hardware-profiles.ts",
+      "size": 10669,
+      "sha256": "6731b8336b994d0ad1e449dab85af1b6386080875ef6dfafa1b036073daa91ac"
+    },
+    {
+      "path": "src/shared/kernel-policy.ts",
+      "size": 92,
+      "sha256": "9832bc93625887726969768508d82e0da6ff425a74b9ee45bd8275e67f1fc8d2"
+    },
+    {
+      "path": "src/shared/network-identity.test.ts",
+      "size": 3274,
+      "sha256": "f451cd611ef2546df8f1e9ed236a52f6d6d4342912926f72821058914caaf690"
+    },
+    {
+      "path": "src/shared/network-identity.ts",
+      "size": 4661,
+      "sha256": "a1f1fc7de9d4c542f01cf063dc5210296ac7b62c233c6f9bbad8cd84a80dda53"
+    },
+    {
+      "path": "src/shared/types.ts",
+      "size": 15002,
+      "sha256": "3ee0a300b7778a44cf656515dda02a52166c04721266cc66d7e3f253e6446abe"
+    },
+    {
+      "path": "src/shared/validation.test.ts",
+      "size": 5042,
+      "sha256": "0d134de0ce2e6f9a5b1d4c177b4b9985c700e600c4b864d71d43b02b85c14754"
+    },
+    {
+      "path": "src/shared/validation.ts",
+      "size": 10217,
+      "sha256": "a4029670c32e7b9af3bd6802743d61138b46e04964f21d57a198413796a5bd33"
+    },
+    {
+      "path": "src/shared/windows-gpu-catalog.json",
+      "size": 2459,
+      "sha256": "27613b55818cc151541e30c5b75da6b90d5f1792998986d191c4276fa5301f80"
+    },
+    {
+      "path": "tools/app-e2e/HOTFIX-006.md",
+      "size": 651,
+      "sha256": "ff6986d9ddf3bd5726fcbe5ead91f56f905fb9e6562a65095306cdc7087bda35"
+    },
+    {
+      "path": "tools/app-e2e/README.md",
+      "size": 1117,
+      "sha256": "cec75964b3edbdf214010199a8a518e67b69594af67c93aa608f82d11dd66795"
+    },
+    {
+      "path": "tools/app-e2e/run.d.mts",
+      "size": 369,
+      "sha256": "1bbc517f61df0e8a36e2f71ab62a1cf47b83f8491de146d4ee5ed11d23acdd45"
+    },
+    {
+      "path": "tools/app-e2e/run.mjs",
+      "size": 17053,
+      "sha256": "a01bde0d57942abafd2a7d685a389a7f9f4e7d2930b794c7dc9bb70653e311b0"
+    },
+    {
+      "path": "tools/beta-acceptance/README.md",
+      "size": 3060,
+      "sha256": "6050276914c4d9cdad15aeb9e378c20498ea4a696672b8172eb6676c4b94d378"
+    },
+    {
+      "path": "tools/beta-acceptance/evidence.template.json",
+      "size": 1161,
+      "sha256": "a9d897d17100144854f37d8dad87e331ea1d6d6cfec872b66a144cf3e7aae68b"
+    },
+    {
+      "path": "tools/beta-acceptance/export-kit.mjs",
+      "size": 3466,
+      "sha256": "d6c07dab797ede03fd3ae1825d78bb2a66142779eaf57580884671614da81ce6"
+    },
+    {
+      "path": "tools/beta-acceptance/validate-evidence.mjs",
+      "size": 9851,
+      "sha256": "1d4129372eed7fb181983673209e583e8f1fc1f826ccc7b286da799f375b95c7"
+    },
+    {
+      "path": "tools/beta-acceptance/verify-kit.mjs",
+      "size": 2386,
+      "sha256": "50c08f597d50725b15ff61bd53073d2f8e5d4bc5de2505df938d1b1c60f26915"
+    },
+    {
+      "path": "tools/fingerprint-audit/README.md",
+      "size": 5759,
+      "sha256": "70d9feeaf6516c0ffee0e053ee7b54b3c1e7b758f6feb6bdc6b0c8cef6596247"
+    },
+    {
+      "path": "tools/fingerprint-audit/Run-Windows-TTS-Probe.ps1",
+      "size": 1278,
+      "sha256": "12e7e16a1feaba9aaaa84ada0b30e0cb41820b427d01ef14c8e3718e4ba0410a"
+    },
+    {
+      "path": "tools/fingerprint-audit/TTS-PROBE-README.md",
+      "size": 646,
+      "sha256": "94217277722c44588aa10251652a66b801f3c3bfbabac13c1bc2b8fa18633217"
+    },
+    {
+      "path": "tools/fingerprint-audit/run.d.mts",
+      "size": 2762,
+      "sha256": "076eff10a4ad708513babb20bd9db5cd33b1c89feff0defd41b97528c2f1f365"
+    },
+    {
+      "path": "tools/fingerprint-audit/run.mjs",
+      "size": 89959,
+      "sha256": "9ec5ee4c504c5fe301598f74821dc6b5d8d5f80adc99421ab0d52df3e870a01e"
+    },
+    {
+      "path": "tools/fingerprint-matrix/README.md",
+      "size": 2112,
+      "sha256": "78238391db385902983cbb11b5f7bb36cf4e2977a0e2fa054c1e2a340b85b0a8"
+    },
+    {
+      "path": "tools/fingerprint-matrix/run.d.mts",
+      "size": 627,
+      "sha256": "27cf3f3a64648f271ce86161a88d245594f01e9d9f1ee61fea43552932edb7a2"
+    },
+    {
+      "path": "tools/fingerprint-matrix/run.mjs",
+      "size": 13912,
+      "sha256": "059768235330fef08f010656415a11a2512e73dfbfe6288085e6b50bc9d75c02"
+    },
+    {
+      "path": "tools/kernel-lock.json",
+      "size": 20788,
+      "sha256": "39dc13108373efc8092971a3db42172d7a4d197c1a2d17566540c158b561b8d6"
+    },
+    {
+      "path": "tools/kernel-maintenance/README.md",
+      "size": 4881,
+      "sha256": "f44a5c928b20ae48aa83afae6084fcfed7c88b50c2e93778923345ab1cae40f6"
+    },
+    {
+      "path": "tools/kernel-maintenance/run.mjs",
+      "size": 15248,
+      "sha256": "ef254a6617ee8c08a8e5c81b341bd2b413126df10c442a7652ce8140f149321a"
+    },
+    {
+      "path": "tools/kernel-patches/004-screen-size.patch",
+      "size": 2004,
+      "sha256": "0e1a76b7dd594d00a5c600a48104e844b945a6cf77be6941294b8a35a3ca67ce"
+    },
+    {
+      "path": "tools/kernel-patches/005-screen-consistency.patch",
+      "size": 3630,
+      "sha256": "3000c0a3af239c24e578923765ce0263f0bd732c91574b8643372124d3a35d7b"
+    },
+    {
+      "path": "tools/kernel-patches/019-proxy-geolocation.patch",
+      "size": 2933,
+      "sha256": "60c8c03ce5e2635f9d9e874303266a1046078758188284f1472e3ee74f0494e2"
+    },
+    {
+      "path": "tools/kernel-patches/020-render-identity-v1.patch",
+      "size": 13513,
+      "sha256": "35347a3cc6ed4d378011ef5acd3507ce34f39ef5a215c6de283d6992fff1732e"
+    },
+    {
+      "path": "tools/kernel-patches/021-conservative-render-identity-v2.patch",
+      "size": 1249,
+      "sha256": "f38fd819a4a663d9227922716c972a8c0465fb148c804c5756fcba5d3cd4a9eb"
+    },
+    {
+      "path": "tools/kernel-patches/022-profile-window-identity.patch",
+      "size": 15653,
+      "sha256": "6c80593aa00ebc1583ecb098fbfae0f0b8c8596425e820a6377a596befb79e9e"
+    },
+    {
+      "path": "tools/kernel-patches/023-coherent-render-identity-v3.patch",
+      "size": 7139,
+      "sha256": "9584f752897fde917bb3810e1a5db7a326f8bacfb570d9c86ed7e8883d95b72d"
+    },
+    {
+      "path": "tools/kernel-patches/024-domrect-seed-mixing.patch",
+      "size": 724,
+      "sha256": "3b6f182e271e4472e25ceced7ae5b5de34713a005042c6ce4068de5aad00a1ec"
+    },
+    {
+      "path": "tools/kernel-patches/025-native-surface-consistency.patch",
+      "size": 5086,
+      "sha256": "8f5ac446ec1914f8e1c9881a179b3fdd6e8b114c399e4f5a530db08fd65ae573"
+    },
+    {
+      "path": "tools/kernel-patches/026-canvas-seed-dispersion.patch",
+      "size": 1562,
+      "sha256": "fcd7b2cec9b19bdfb91bef474849e119e303a2190f8ecec66d8aa754e29f97a4"
+    },
+    {
+      "path": "tools/kernel-patches/027-direct-domrect-identity.patch",
+      "size": 1561,
+      "sha256": "22d0a9cea2a342b81f9b9ee0674ad19ef062e768c13c83e5195d8c1ac9d852c9"
+    },
+    {
+      "path": "tools/kernel-patches/028-direct-domrect-consumption.patch",
+      "size": 2251,
+      "sha256": "24d8e1693f303ac43713b2ff45c1c0d333f1f1dc41d2322f92cbbb74a8287a2e"
+    },
+    {
+      "path": "tools/kernel-patches/029-native-locale-surfaces-v4.patch",
+      "size": 7511,
+      "sha256": "a75373500295deef89d5eebe4947261092878fc07fd92b2cea4358a82a2e2138"
+    },
+    {
+      "path": "tools/kernel-patches/030-windows-native-tts-voices.patch",
+      "size": 1451,
+      "sha256": "ccd8255f9273d14b30e447ced900db9743dbaa7ab26197e0eb4b6aa26ea772f4"
+    },
+    {
+      "path": "tools/kernel-patches/031-windows-tts-runtime.patch",
+      "size": 11169,
+      "sha256": "ffff53558417633112f82d46674d72e52067daea0bdb3e82f8ce3f260890b639"
+    },
+    {
+      "path": "tools/kernel-patches/032-webgpu-template-identity.patch",
+      "size": 3122,
+      "sha256": "9b8941d74aaf90bb52bf8f1df08ed4139f167ea432fb030f2114d11a7a4220a8"
+    },
+    {
+      "path": "tools/kernel-patches/033-webgl-snapshot-speech-coherence.patch",
+      "size": 8249,
+      "sha256": "a4cf23830f6143e0c1a935175a759f939a5b3677654b6324e35865e93e479c4a"
+    },
+    {
+      "path": "tools/kernel-patches/034-canvas-serialization-identity.patch",
+      "size": 4423,
+      "sha256": "e29655becc7b35cb1b6c065d23a6a6caeb1110f5563390c4b7d6e72bb3a618fb"
+    },
+    {
+      "path": "tools/kernel-patches/035-locale-speech-catalog.patch",
+      "size": 5773,
+      "sha256": "3767c0dc573ecda7d8ef27d7d9af5b25791649698d963f23c4449352903634d4"
+    },
+    {
+      "path": "tools/kernel-patches/036-coherent-canvas-readback.patch",
+      "size": 1038,
+      "sha256": "718a8ba121d895209401903c5fc97bbbe87f0754b8affb97afc0afbc032ab554"
+    },
+    {
+      "path": "tools/kernel-patches/037-canvas-seed-slot-dispersion.patch",
+      "size": 781,
+      "sha256": "0f4e4042448d67c455657cae4c2cb4e5239bb3d5823ffb30b6716c7624c1a79d"
+    },
+    {
+      "path": "tools/kernel-patches/038-webgl-calibration-authenticity.patch",
+      "size": 2535,
+      "sha256": "bf723e62e8942e20d30e2bdb4b090f18e728d58cbda8f83f58ea7db160a0050b"
+    },
+    {
+      "path": "tools/kernel-patches/039-native-font-inventory-authenticity.patch",
+      "size": 768,
+      "sha256": "cd9c1dbf98d108e19215feaa880e656a80960cd47c0538557b04801ee17a7b52"
+    },
+    {
+      "path": "tools/kernel-patches/040-domrect-calibration-authenticity.patch",
+      "size": 3204,
+      "sha256": "f953f04bfb5025d1cfbee52013fd838bd924757347274099887d735405ad769f"
+    },
+    {
+      "path": "tools/kernel-patches/041-macos-intl-locale.patch",
+      "size": 1261,
+      "sha256": "ca0a6786b4f2221ae8debd273ea296acd42030a7812d9180b31b2cbd44bfab2c"
+    },
+    {
+      "path": "tools/kernel-patches/042-native-canvas-audio-calibration.patch",
+      "size": 4502,
+      "sha256": "98fbbee5a3d2e27d847c29590ef076f74d7a45648eb34c61418bca80c322e1ac"
+    },
+    {
+      "path": "tools/kernel-patches/043-audio-noise-trap-authenticity.patch",
+      "size": 2140,
+      "sha256": "d1c7dd152a7bdbac3a73449b2827ef2e91cb2a03f5e13e907cc38979902854e4"
+    },
+    {
+      "path": "tools/kernel-patches/044-windows-taskbar-badge-readiness.patch",
+      "size": 2155,
+      "sha256": "1c71962e99ad0eef53eba5154da4cb9fa67d41abe94c22d901a62576e22294cd"
+    },
+    {
+      "path": "tools/macos-kernel/Build-Kernel.sh",
+      "size": 4616,
+      "sha256": "604c8ae0d6d5b5267d414abff30d8c4ac2e4b9347c562f01db8947e49b00b68d"
+    },
+    {
+      "path": "tools/macos-kernel/Check-Prerequisites.sh",
+      "size": 2051,
+      "sha256": "1cff62471e81745f9c23e0ed8dd17c34cafaf70f53c67e86423d62e370754937"
+    },
+    {
+      "path": "tools/macos-kernel/Prepare-Source.sh",
+      "size": 9002,
+      "sha256": "66eb2b04dfee37f5ab09cdd1f26688b154926e0f819de518c68a77eb0daea27b"
+    },
+    {
+      "path": "tools/macos-kernel/README.md",
+      "size": 8998,
+      "sha256": "c98f9cfc001e0a90e929e897ddf617037a6dfff6cfb70fa43a7c8eb244a2f076"
+    },
+    {
+      "path": "tools/macos-kernel/Sign-Local-Build.sh",
+      "size": 2241,
+      "sha256": "bbb218220bb473721b8c3636a4591b25037d857fd2a743dab47d0e431baeac8e"
+    },
+    {
+      "path": "tools/macos-kernel/Sign-Release-Build.sh",
+      "size": 2528,
+      "sha256": "2fd01a898f1e6944929f863cd3b24e044b501c821d65b3c4dc5031188b47226b"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Audio-Noise-Trap-Authenticity-Patch.sh",
+      "size": 2614,
+      "sha256": "4ba13c0a3332953963002bd339b4d1d7f64846f61e01a05b3df2db717cbd1366"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Canvas-Seed-Dispersion-Patch.sh",
+      "size": 4481,
+      "sha256": "b534e231ea99285fa492572ed43b22e874652219d80a624f722ed029fc392304"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Canvas-Seed-Slot-Dispersion-Patch.sh",
+      "size": 3480,
+      "sha256": "ae9eafc67717e3a2acf22efc7cb504b451e25fee037c18a64f7e9ac3c6f88387"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Canvas-Speech-Identity-Patches.sh",
+      "size": 4991,
+      "sha256": "2b3f358ed4fb3f52db7ed81f41eb54179f4185c111285ed498703d3ccbfc29b3"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Coherent-Canvas-Readback-Patch.sh",
+      "size": 3488,
+      "sha256": "571f29355fe2d17beb5e832fe5077a8ca4b5d83b68f763e3775d8ec1a5ec9666"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Coherent-Render-Identity-Patch.sh",
+      "size": 4847,
+      "sha256": "e839abd10e5583fca409b924f2f2eefc220dde5684944230db71146faf7cc303"
+    },
+    {
+      "path": "tools/macos-kernel/Update-DOMRect-Calibration-Authenticity-Patch.sh",
+      "size": 3485,
+      "sha256": "4039326af97819bf5c1c25a4638277d756522b6939c013c43026a603a0f4a6d4"
+    },
+    {
+      "path": "tools/macos-kernel/Update-DOMRect-Identity-Patch.sh",
+      "size": 4349,
+      "sha256": "11df9ead586e561f1bc30c3f8a2ca5f4f3e3d188a09953c8b6ce043a54975280"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Direct-DOMRect-Consumption-Patch.sh",
+      "size": 4776,
+      "sha256": "6b9b5106fb1558d9a6a164da23ca38b1eee5f25395b8066ead1f08a98ba26176"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Direct-DOMRect-Identity-Patch.sh",
+      "size": 4421,
+      "sha256": "61601923c52f1d0932950e5a08ab14cb0e0e1aee7ff9b6b607c466df090d5430"
+    },
+    {
+      "path": "tools/macos-kernel/Update-MacOS-Intl-Locale-Patch.sh",
+      "size": 3318,
+      "sha256": "66c5d409ef99434230a4bcd74977acbbab40c6964d2144d020479d7d481caf70"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Native-Canvas-Audio-Calibration-Patch.sh",
+      "size": 2268,
+      "sha256": "fa95732cd0cebb5c792ba3d3e17e2cd1a25ebf6348c5b12b8dd650de23826a39"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Native-Font-Inventory-Authenticity-Patch.sh",
+      "size": 3405,
+      "sha256": "f5c70ae14da3870bb11a80ca291edfdbd1c8cc5bae3a836e54536fe1b936e498"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Native-Locale-Surfaces-V4-Patch.sh",
+      "size": 5612,
+      "sha256": "7d47e5d461b0f09555a15837faadf421da8554e5378edf6d4829c9c95022a060"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Native-Surface-Consistency-Patch.sh",
+      "size": 5283,
+      "sha256": "a0486d2fd79011a40b506546fd39b3347b353a1f4b0c824098cbe234d96a9b52"
+    },
+    {
+      "path": "tools/macos-kernel/Update-WebGL-Calibration-Authenticity-Patch.sh",
+      "size": 3375,
+      "sha256": "df36e765db29fd6e3e1d7b1495a9dba5475bdb36ca17bedecfe791ec95bdf601"
+    },
+    {
+      "path": "tools/macos-kernel/Update-WebGL-Snapshot-Speech-Coherence-Patch.sh",
+      "size": 4296,
+      "sha256": "0080c117404cd546632f7b0c3a0d31de6d5e40fe470947e6b7af9097d49bb8c1"
+    },
+    {
+      "path": "tools/macos-kernel/Update-WebGPU-Template-Identity-Patch.sh",
+      "size": 4030,
+      "sha256": "aef4ec172199595f0471450be19a422c77ac7f9a653b10effc7faadb8f49e9dc"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Window-Identity-Patch.sh",
+      "size": 4334,
+      "sha256": "e532f48fd4be77ad6ac7cee43edb8c69502bcfba871359457cf99cf7184f3a10"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Windows-Native-TTS-Voices-Patch.sh",
+      "size": 4294,
+      "sha256": "873e1230dda319c86182e167062f42faa310bf15fdd11bb9efec3b1a6227a47c"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Windows-TTS-Runtime-Patch.sh",
+      "size": 4656,
+      "sha256": "fef6868cfcd34df52b5fa0b66d7af6c9b2b2e3cd032116daac69047fbbd30dd5"
+    },
+    {
+      "path": "tools/macos-kernel/Update-Windows-Taskbar-Badge-Readiness-Patch.sh",
+      "size": 2667,
+      "sha256": "2b652df80a73c9825a91ca7ee65dce8aa88f91e643d2388abe23ddc5e68e539f"
+    },
+    {
+      "path": "tools/macos-kernel/entitlements/app-entitlements.plist",
+      "size": 601,
+      "sha256": "25307ca8af0b65d7f9188197660656b92767cc0684f9d6354a26dc163c6df705"
+    },
+    {
+      "path": "tools/macos-kernel/entitlements/helper-gpu-entitlements.plist",
+      "size": 240,
+      "sha256": "caae59d69aca7ef6faaf8b9e7873c8a253774a304819111b572029424ab9f5f4"
+    },
+    {
+      "path": "tools/macos-kernel/entitlements/helper-plugin-entitlements.plist",
+      "size": 332,
+      "sha256": "1fbb2be1ac5801671b01302364caf98aea3b7ec79b5f6b54581defa466a7b13d"
+    },
+    {
+      "path": "tools/macos-kernel/entitlements/helper-renderer-entitlements.plist",
+      "size": 240,
+      "sha256": "caae59d69aca7ef6faaf8b9e7873c8a253774a304819111b572029424ab9f5f4"
+    },
+    {
+      "path": "tools/macos-kernel/patches/032-webgpu-template-identity.patch",
+      "size": 3122,
+      "sha256": "9b8941d74aaf90bb52bf8f1df08ed4139f167ea432fb030f2114d11a7a4220a8"
+    },
+    {
+      "path": "tools/macos-kernel/patches/033-webgl-snapshot-speech-coherence.patch",
+      "size": 8249,
+      "sha256": "a4cf23830f6143e0c1a935175a759f939a5b3677654b6324e35865e93e479c4a"
+    },
+    {
+      "path": "tools/macos-kernel/patches/034-canvas-serialization-identity.patch",
+      "size": 4423,
+      "sha256": "e29655becc7b35cb1b6c065d23a6a6caeb1110f5563390c4b7d6e72bb3a618fb"
+    },
+    {
+      "path": "tools/macos-kernel/patches/035-locale-speech-catalog.patch",
+      "size": 5773,
+      "sha256": "3767c0dc573ecda7d8ef27d7d9af5b25791649698d963f23c4449352903634d4"
+    },
+    {
+      "path": "tools/macos-kernel/patches/036-coherent-canvas-readback.patch",
+      "size": 1038,
+      "sha256": "718a8ba121d895209401903c5fc97bbbe87f0754b8affb97afc0afbc032ab554"
+    },
+    {
+      "path": "tools/macos-kernel/patches/037-canvas-seed-slot-dispersion.patch",
+      "size": 781,
+      "sha256": "0f4e4042448d67c455657cae4c2cb4e5239bb3d5823ffb30b6716c7624c1a79d"
+    },
+    {
+      "path": "tools/macos-kernel/patches/038-webgl-calibration-authenticity.patch",
+      "size": 2535,
+      "sha256": "bf723e62e8942e20d30e2bdb4b090f18e728d58cbda8f83f58ea7db160a0050b"
+    },
+    {
+      "path": "tools/macos-kernel/patches/039-native-font-inventory-authenticity.patch",
+      "size": 768,
+      "sha256": "cd9c1dbf98d108e19215feaa880e656a80960cd47c0538557b04801ee17a7b52"
+    },
+    {
+      "path": "tools/macos-kernel/patches/040-domrect-calibration-authenticity.patch",
+      "size": 3204,
+      "sha256": "f953f04bfb5025d1cfbee52013fd838bd924757347274099887d735405ad769f"
+    },
+    {
+      "path": "tools/macos-kernel/patches/041-macos-intl-locale.patch",
+      "size": 1261,
+      "sha256": "ca0a6786b4f2221ae8debd273ea296acd42030a7812d9180b31b2cbd44bfab2c"
+    },
+    {
+      "path": "tools/macos-kernel/patches/042-native-canvas-audio-calibration.patch",
+      "size": 4502,
+      "sha256": "98fbbee5a3d2e27d847c29590ef076f74d7a45648eb34c61418bca80c322e1ac"
+    },
+    {
+      "path": "tools/macos-kernel/patches/043-audio-noise-trap-authenticity.patch",
+      "size": 2140,
+      "sha256": "d1c7dd152a7bdbac3a73449b2827ef2e91cb2a03f5e13e907cc38979902854e4"
+    },
+    {
+      "path": "tools/macos-kernel/patches/044-windows-taskbar-badge-readiness.patch",
+      "size": 2155,
+      "sha256": "1c71962e99ad0eef53eba5154da4cb9fa67d41abe94c22d901a62576e22294cd"
+    },
+    {
+      "path": "tools/multi-profile-stress/README.md",
+      "size": 1320,
+      "sha256": "4d794136819dbd4fcefe003f5478404c6c2d31dcc0e5c3ba4361a25204d2a121"
+    },
+    {
+      "path": "tools/multi-profile-stress/analysis.mjs",
+      "size": 3361,
+      "sha256": "ea45b30e731ee3d6cd4fe12d6605a7e0fabfe36bf1b3e53b269b71684c9e8341"
+    },
+    {
+      "path": "tools/multi-profile-stress/run.mjs",
+      "size": 18384,
+      "sha256": "e14b37f87ad677c331d04adba6209ed3c35f4efab41d426eb427c4b9dc5fed13"
+    },
+    {
+      "path": "tools/network-audit/README.md",
+      "size": 1578,
+      "sha256": "06af14c767171cacfceb89e6d760a217ab223bc851df1f5111e216c86bfc4a21"
+    },
+    {
+      "path": "tools/network-audit/proxy.example.json",
+      "size": 123,
+      "sha256": "534a98867f5187ea83ac498b66d0a7b148e753ed0eacaefc050a3b9b6ac9feff"
+    },
+    {
+      "path": "tools/network-audit/run.mjs",
+      "size": 10953,
+      "sha256": "394ec6a1ab1035c2ff5c483e5c273e72f5d5432713e956ffbf4dd90ae38dd912"
+    },
+    {
+      "path": "tools/pixelscan-online-probe/run.mjs",
+      "size": 21187,
+      "sha256": "7414562a91e30d19bed2ff05aa275a9e02444caa4df0d4e5ec037a7c7b0b394d"
+    },
+    {
+      "path": "tools/profile-data-audit/HOTFIX-007.md",
+      "size": 788,
+      "sha256": "d8f20e423c465466e8da7ddc26285083a973a7ba7520893515ff640420c862b5"
+    },
+    {
+      "path": "tools/profile-data-audit/README.md",
+      "size": 915,
+      "sha256": "7c146b5c4c9dd0783687f355f610cc9f5f02a4e87afc84bb54d9738f348d20cd"
+    },
+    {
+      "path": "tools/profile-data-audit/run.mjs",
+      "size": 19587,
+      "sha256": "387e3ebb30b48832f83bdddfb0a3dc374ccc8f81f00d0adf569f9b0845e419f4"
+    },
+    {
+      "path": "tools/release/Build-Mac-Release.sh",
+      "size": 3427,
+      "sha256": "c788629d1abb04622d5fdd4c2d9af5085bcd2f8e2233a758a640940b15f83c99"
+    },
+    {
+      "path": "tools/release/README.md",
+      "size": 3156,
+      "sha256": "5c1a44a9607c9eacef99b2132a47e063cbcd40752b35f79e4e329e7d9644a90a"
+    },
+    {
+      "path": "tools/release/create-update-manifest.mjs",
+      "size": 5589,
+      "sha256": "c807331e91a12ca22fb86dbc05f3c60a218f7dfa5ac48223e9ffdf2d81f7bf29"
+    },
+    {
+      "path": "tools/release/verify-update-candidate.mjs",
+      "size": 7473,
+      "sha256": "e8c8d36854402af421f637e8fe95e5159b5d176baa6c2c06060beee67aafd75b"
+    },
+    {
+      "path": "tools/runtime-soak/README.md",
+      "size": 1239,
+      "sha256": "674e75eca2c5109d739e331a83e1a763c7c0eb714ec1ba80bec33363aa105f5e"
+    },
+    {
+      "path": "tools/runtime-soak/analyze.cjs",
+      "size": 6147,
+      "sha256": "96830d176318eb149fb834d316aa7dbc04fbe93a71cba61de98c29e2d1575823"
+    },
+    {
+      "path": "tools/windows-acceptance/HOTFIX-002.md",
+      "size": 716,
+      "sha256": "f543c6c5b6e0e253c38c0c340fdb88c0bba24b193e51f820929442fd1e2e1409"
+    },
+    {
+      "path": "tools/windows-acceptance/HOTFIX-003.md",
+      "size": 944,
+      "sha256": "043b93e8a351d7516e3581075100b3a4f6fb69aa06a4cb4027882d4dda289d9d"
+    },
+    {
+      "path": "tools/windows-acceptance/HOTFIX-004.md",
+      "size": 935,
+      "sha256": "9cbfa07d3abbc162cf780352b65b5c9e1eb9a0cb3054cc2f80bd151ead290445"
+    },
+    {
+      "path": "tools/windows-acceptance/HOTFIX-005.md",
+      "size": 1099,
+      "sha256": "76ade3f30ca178a3ef134e454786ecfdb16c394e7f834082afe029e05d80c91f"
+    },
+    {
+      "path": "tools/windows-acceptance/README.md",
+      "size": 1655,
+      "sha256": "93ddf9044cd7d6a6c416ba4ba6c20719da9a02570c8a573713eb76c1dd0ef74f"
+    },
+    {
+      "path": "tools/windows-acceptance/Run-Windows-Acceptance.ps1",
+      "size": 1149,
+      "sha256": "df7a723cc8e058438abcbe02e138e8c9e81b4709dcbbb0c1bccbb8070bc80c72"
+    },
+    {
+      "path": "tools/windows-acceptance/run.cjs",
+      "size": 20812,
+      "sha256": "687431bf761b5a31a6971a05998d2dd6d36d3e67e81cebc82d60adbfb2651dd9"
+    },
+    {
+      "path": "tools/windows-kernel/Build-Kernel.ps1",
+      "size": 56344,
+      "sha256": "4ee979b3dfa5de6d1ae3627567542608a2ae5f9e787df60f034ad8fb57966b1c"
+    },
+    {
+      "path": "tools/windows-kernel/Check-Prerequisites.ps1",
+      "size": 14715,
+      "sha256": "766897b4be04ea036792a6ba0a34185271a0687ab968e0fb5eea7cdf31dd83fb"
+    },
+    {
+      "path": "tools/windows-kernel/Kernel-Lock.ps1",
+      "size": 4032,
+      "sha256": "d8cb665b45e51bae44c9cfbcc0af1d19324dcdd5a6059d96d8f8992ae49948da"
+    },
+    {
+      "path": "tools/windows-kernel/Prepare-Source.ps1",
+      "size": 34773,
+      "sha256": "e5b02c629ed38c5ab3ade07b550a1b89cfa5f014d409550e0075251032e09b7d"
+    },
+    {
+      "path": "tools/windows-kernel/README.md",
+      "size": 24756,
+      "sha256": "9aa00861f827a37c35da3e38b2d436f9bc72c50c0b247c92d8956c8cce2c4981"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Audio-Noise-Trap-Authenticity-Patch.ps1",
+      "size": 3235,
+      "sha256": "5745d5359808670eee823ef601d7affccd4274ad277cceb312f1e1a57496d48d"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Canvas-Seed-Dispersion-Patch.ps1",
+      "size": 4793,
+      "sha256": "5b77b47b2753fff7851c2a0a5b2da8865f068cd06af0282ad0507a3b2da05ad4"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Canvas-Seed-Slot-Dispersion-Patch.ps1",
+      "size": 3944,
+      "sha256": "b90fc86f25da2d021c29240e4263f5507bb146f8d3e41b418861b4a14556e630"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Canvas-Speech-Identity-Patches.ps1",
+      "size": 6226,
+      "sha256": "5ba91fda5fb20e194974b94a90fdd15f94becbd736654becb9816fd45c4e20fd"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Coherent-Canvas-Readback-Patch.ps1",
+      "size": 4337,
+      "sha256": "673a34964adc18fb94a6f79e56ff5d319e42d28e4c8d9bb080aa95036e27af2d"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Coherent-Render-Identity-Patch.ps1",
+      "size": 5216,
+      "sha256": "c0784a51c812dd02875f0115de8dd2032a419eaba9c330b4bfc5cc09245cf457"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Conservative-Render-Identity-Patch.ps1",
+      "size": 5860,
+      "sha256": "3b4250f1c5d3a736795d93001a7c45ae93f5082439473821b724cad282c5eb1b"
+    },
+    {
+      "path": "tools/windows-kernel/Update-DOMRect-Calibration-Authenticity-Patch.ps1",
+      "size": 3941,
+      "sha256": "260da41d26faa34ff14516001d0333b2af731747d37859b3885e7029e2b8e7b3"
+    },
+    {
+      "path": "tools/windows-kernel/Update-DOMRect-Identity-Patch.ps1",
+      "size": 4672,
+      "sha256": "ece4b0e91a09514c22220d94929bfbd8a9d2d56dc7338d96193e367b4d6bc477"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Direct-DOMRect-Consumption-Patch.ps1",
+      "size": 5126,
+      "sha256": "f45a1c68104b301733c4d93bbdd9cddced1baf2b91f0c81184648fac8b133ca4"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Direct-DOMRect-Identity-Patch.ps1",
+      "size": 4741,
+      "sha256": "0636141d058586af130418eb835895b4bb6886b587809df2c511ed94ca73c081"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Native-Canvas-Audio-Calibration-Patch.ps1",
+      "size": 3698,
+      "sha256": "467683c23a26504e27f17bf5d6ec4311a39a2906b974e9458bfcf5b1c9b2e05c"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Native-Font-Inventory-Authenticity-Patch.ps1",
+      "size": 3835,
+      "sha256": "2c6db668a1485607a1cbed96297aaf7038421a0a3260ae5200c27824910c0d10"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Native-Locale-Surfaces-V4-Patch.ps1",
+      "size": 6131,
+      "sha256": "76f9834f6a852f3d71b33563b8d5ccee9d079c1a1e1bf6952dbc64667fd45d8f"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Native-Surface-Consistency-Patch.ps1",
+      "size": 5773,
+      "sha256": "e87f47b7dceb121551a812476bb5908acdda408fed1eec742ab3ae5229bb44dd"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Network-Patch.ps1",
+      "size": 4971,
+      "sha256": "7ba84d2da8636b794899443402f367f5c4f1e0c2cfeb13159678f0d5a8ebd357"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Render-Identity-Patch.ps1",
+      "size": 16459,
+      "sha256": "437c2c8b309332122d751fca2eed7204b3c96381a15a790a5b13e363e834713c"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Screen-Consistency-Patch.ps1",
+      "size": 4907,
+      "sha256": "b4b76c116c6406cd4694fec91675624449b4fac4faf7bab1b75153a47944cb86"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Screen-Patch.ps1",
+      "size": 3010,
+      "sha256": "a1ca28b729a1a1eb9409401de43d4d511461780ef920ea77a02bc44deb402507"
+    },
+    {
+      "path": "tools/windows-kernel/Update-WebGL-Calibration-Authenticity-Patch.ps1",
+      "size": 3813,
+      "sha256": "e1fa80486a064e11e1c87019a579656bdc8e1da292641ae7fd84bd405cf24e29"
+    },
+    {
+      "path": "tools/windows-kernel/Update-WebGL-Snapshot-Speech-Coherence-Patch.ps1",
+      "size": 5414,
+      "sha256": "f14f1b8ab38af53dead5da0edf35c93cfde0c3eadc9d64014164e64ebd7aa9ef"
+    },
+    {
+      "path": "tools/windows-kernel/Update-WebGPU-Template-Identity-Patch.ps1",
+      "size": 4972,
+      "sha256": "afae11cb72ea8f0a4ff3a9079a403da420d8f1f0409e0fa5772fc0f3dea2bd09"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Window-Identity-Patch.ps1",
+      "size": 4673,
+      "sha256": "7aeb5607393a49790522d2563db5ee6e47772ef6c4867726ef42088032f0b19a"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Windows-Native-TTS-Voices-Patch.ps1",
+      "size": 4638,
+      "sha256": "c00c7fa4bcc773e61c2c7108d311af43c4f5ec03ef6c77f70096c4e39db57e2c"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Windows-TTS-Runtime-Patch.ps1",
+      "size": 4888,
+      "sha256": "d81dc9c578c05a90900ef480b7850625b292cd919c677d1019e602e8db9712cc"
+    },
+    {
+      "path": "tools/windows-kernel/Update-Windows-Taskbar-Badge-Readiness-Patch.ps1",
+      "size": 3284,
+      "sha256": "84ee5eea2b08e3564e17d50bc2b810b80729f57236c89a642e6d1925cf3b77b1"
+    },
+    {
+      "path": "tools/windows-kernel/patches/004-screen-size.patch",
+      "size": 2004,
+      "sha256": "0e1a76b7dd594d00a5c600a48104e844b945a6cf77be6941294b8a35a3ca67ce"
+    },
+    {
+      "path": "tools/windows-kernel/patches/005-screen-consistency.patch",
+      "size": 3630,
+      "sha256": "3000c0a3af239c24e578923765ce0263f0bd732c91574b8643372124d3a35d7b"
+    },
+    {
+      "path": "tools/windows-kernel/patches/019-proxy-geolocation.patch",
+      "size": 2933,
+      "sha256": "60c8c03ce5e2635f9d9e874303266a1046078758188284f1472e3ee74f0494e2"
+    },
+    {
+      "path": "tools/windows-kernel/patches/020-render-identity-v1.patch",
+      "size": 13513,
+      "sha256": "35347a3cc6ed4d378011ef5acd3507ce34f39ef5a215c6de283d6992fff1732e"
+    },
+    {
+      "path": "tools/windows-kernel/patches/021-conservative-render-identity-v2.patch",
+      "size": 1249,
+      "sha256": "f38fd819a4a663d9227922716c972a8c0465fb148c804c5756fcba5d3cd4a9eb"
+    },
+    {
+      "path": "tools/windows-kernel/patches/022-profile-window-identity.patch",
+      "size": 15653,
+      "sha256": "6c80593aa00ebc1583ecb098fbfae0f0b8c8596425e820a6377a596befb79e9e"
+    },
+    {
+      "path": "tools/windows-kernel/patches/023-coherent-render-identity-v3.patch",
+      "size": 7139,
+      "sha256": "9584f752897fde917bb3810e1a5db7a326f8bacfb570d9c86ed7e8883d95b72d"
+    },
+    {
+      "path": "tools/windows-kernel/patches/024-domrect-seed-mixing.patch",
+      "size": 724,
+      "sha256": "3b6f182e271e4472e25ceced7ae5b5de34713a005042c6ce4068de5aad00a1ec"
+    },
+    {
+      "path": "tools/windows-kernel/patches/025-native-surface-consistency.patch",
+      "size": 5086,
+      "sha256": "8f5ac446ec1914f8e1c9881a179b3fdd6e8b114c399e4f5a530db08fd65ae573"
+    },
+    {
+      "path": "tools/windows-kernel/patches/026-canvas-seed-dispersion.patch",
+      "size": 1562,
+      "sha256": "fcd7b2cec9b19bdfb91bef474849e119e303a2190f8ecec66d8aa754e29f97a4"
+    },
+    {
+      "path": "tools/windows-kernel/patches/027-direct-domrect-identity.patch",
+      "size": 1561,
+      "sha256": "22d0a9cea2a342b81f9b9ee0674ad19ef062e768c13c83e5195d8c1ac9d852c9"
+    },
+    {
+      "path": "tools/windows-kernel/patches/028-direct-domrect-consumption.patch",
+      "size": 2251,
+      "sha256": "24d8e1693f303ac43713b2ff45c1c0d333f1f1dc41d2322f92cbbb74a8287a2e"
+    },
+    {
+      "path": "tools/windows-kernel/patches/029-native-locale-surfaces-v4.patch",
+      "size": 7511,
+      "sha256": "a75373500295deef89d5eebe4947261092878fc07fd92b2cea4358a82a2e2138"
+    },
+    {
+      "path": "tools/windows-kernel/patches/030-windows-native-tts-voices.patch",
+      "size": 1451,
+      "sha256": "ccd8255f9273d14b30e447ced900db9743dbaa7ab26197e0eb4b6aa26ea772f4"
+    },
+    {
+      "path": "tools/windows-kernel/patches/031-windows-tts-runtime.patch",
+      "size": 11169,
+      "sha256": "ffff53558417633112f82d46674d72e52067daea0bdb3e82f8ce3f260890b639"
+    },
+    {
+      "path": "tools/windows-kernel/patches/032-webgpu-template-identity.patch",
+      "size": 3122,
+      "sha256": "9b8941d74aaf90bb52bf8f1df08ed4139f167ea432fb030f2114d11a7a4220a8"
+    },
+    {
+      "path": "tools/windows-kernel/patches/033-webgl-snapshot-speech-coherence.patch",
+      "size": 8249,
+      "sha256": "a4cf23830f6143e0c1a935175a759f939a5b3677654b6324e35865e93e479c4a"
+    },
+    {
+      "path": "tools/windows-kernel/patches/034-canvas-serialization-identity.patch",
+      "size": 4423,
+      "sha256": "e29655becc7b35cb1b6c065d23a6a6caeb1110f5563390c4b7d6e72bb3a618fb"
+    },
+    {
+      "path": "tools/windows-kernel/patches/035-locale-speech-catalog.patch",
+      "size": 5773,
+      "sha256": "3767c0dc573ecda7d8ef27d7d9af5b25791649698d963f23c4449352903634d4"
+    },
+    {
+      "path": "tools/windows-kernel/patches/036-coherent-canvas-readback.patch",
+      "size": 1038,
+      "sha256": "718a8ba121d895209401903c5fc97bbbe87f0754b8affb97afc0afbc032ab554"
+    },
+    {
+      "path": "tools/windows-kernel/patches/037-canvas-seed-slot-dispersion.patch",
+      "size": 781,
+      "sha256": "0f4e4042448d67c455657cae4c2cb4e5239bb3d5823ffb30b6716c7624c1a79d"
+    },
+    {
+      "path": "tools/windows-kernel/patches/038-webgl-calibration-authenticity.patch",
+      "size": 2535,
+      "sha256": "bf723e62e8942e20d30e2bdb4b090f18e728d58cbda8f83f58ea7db160a0050b"
+    },
+    {
+      "path": "tools/windows-kernel/patches/039-native-font-inventory-authenticity.patch",
+      "size": 768,
+      "sha256": "cd9c1dbf98d108e19215feaa880e656a80960cd47c0538557b04801ee17a7b52"
+    },
+    {
+      "path": "tools/windows-kernel/patches/040-domrect-calibration-authenticity.patch",
+      "size": 3204,
+      "sha256": "f953f04bfb5025d1cfbee52013fd838bd924757347274099887d735405ad769f"
+    },
+    {
+      "path": "tools/windows-kernel/patches/041-macos-intl-locale.patch",
+      "size": 1261,
+      "sha256": "ca0a6786b4f2221ae8debd273ea296acd42030a7812d9180b31b2cbd44bfab2c"
+    },
+    {
+      "path": "tools/windows-kernel/patches/042-native-canvas-audio-calibration.patch",
+      "size": 4502,
+      "sha256": "98fbbee5a3d2e27d847c29590ef076f74d7a45648eb34c61418bca80c322e1ac"
+    },
+    {
+      "path": "tools/windows-kernel/patches/043-audio-noise-trap-authenticity.patch",
+      "size": 2140,
+      "sha256": "d1c7dd152a7bdbac3a73449b2827ef2e91cb2a03f5e13e907cc38979902854e4"
+    },
+    {
+      "path": "tools/windows-kernel/patches/044-windows-taskbar-badge-readiness.patch",
+      "size": 2155,
+      "sha256": "1c71962e99ad0eef53eba5154da4cb9fa67d41abe94c22d901a62576e22294cd"
+    },
+    {
+      "path": "tsconfig.json",
+      "size": 592,
+      "sha256": "92f4b8e9104ba37d5c8bce1be8490061422d93db19b392d7d63f31edc6e94cc5"
+    },
+    {
+      "path": "vitest.config.ts",
+      "size": 180,
+      "sha256": "c2c31e8d248d8b321be1039253a9cfe72c4cd04c171ed2d505d4291a704b25e5"
+    }
+  ]
+}

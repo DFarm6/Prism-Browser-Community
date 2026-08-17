@@ -1,0 +1,158 @@
+--- a/third_party/blink/renderer/modules/speech/speech_synthesis_voice.h
++++ b/third_party/blink/renderer/modules/speech/speech_synthesis_voice.h
+@@ -36,6 +36,8 @@ class SpeechSynthesisVoice final : public ScriptWrappable {
+  public:
+   explicit SpeechSynthesisVoice(
+       mojom::blink::SpeechSynthesisVoicePtr mojom_voice);
++  SpeechSynthesisVoice(mojom::blink::SpeechSynthesisVoicePtr mojom_voice,
++                       const String& platform_name);
+   ~SpeechSynthesisVoice() override;
+ 
+   const String& voiceURI() const { return mojom_voice_->voice_uri; }
+@@ -44,8 +46,14 @@ class SpeechSynthesisVoice final : public ScriptWrappable {
+   bool localService() const { return mojom_voice_->is_local_service; }
+   bool isDefault() const { return mojom_voice_->is_default; }
+ 
++  const String& platformName() const { return platform_name_; }
++  void SetPlatformName(const String& platform_name) {
++    platform_name_ = platform_name;
++  }
++
+  private:
+   mojom::blink::SpeechSynthesisVoicePtr mojom_voice_;
++  String platform_name_;
+ };
+ 
+ }  // namespace blink
+--- a/third_party/blink/renderer/modules/speech/speech_synthesis_voice.cc
++++ b/third_party/blink/renderer/modules/speech/speech_synthesis_voice.cc
+@@ -27,7 +27,14 @@ namespace blink {
+ 
+ SpeechSynthesisVoice::SpeechSynthesisVoice(
+     mojom::blink::SpeechSynthesisVoicePtr mojom_voice)
+-    : mojom_voice_(std::move(mojom_voice)) {}
++    : mojom_voice_(std::move(mojom_voice)),
++      platform_name_(mojom_voice_->name) {}
++
++SpeechSynthesisVoice::SpeechSynthesisVoice(
++    mojom::blink::SpeechSynthesisVoicePtr mojom_voice,
++    const String& platform_name)
++    : mojom_voice_(std::move(mojom_voice)),
++      platform_name_(platform_name) {}
+ 
+ SpeechSynthesisVoice::~SpeechSynthesisVoice() = default;
+ 
+--- a/third_party/blink/renderer/modules/speech/speech_synthesis_utterance.cc
++++ b/third_party/blink/renderer/modules/speech/speech_synthesis_utterance.cc
+@@ -73,7 +73,10 @@ void SpeechSynthesisUtterance::setVoice(SpeechSynthesisVoice* voice) {
+   // voice in the read property.
+   voice_ = voice;
+ 
+-  mojom_utterance_->voice = voice_ ? voice_->name() : String();
++  mojom_utterance_->voice = voice_ ? voice_->platformName() : String();
++  if (voice_ && mojom_utterance_->lang.empty()) {
++    mojom_utterance_->lang = voice_->lang();
++  }
+ }
+ 
+ float SpeechSynthesisUtterance::volume() const {
+--- a/third_party/blink/renderer/modules/speech/speech_synthesis.cc
++++ b/third_party/blink/renderer/modules/speech/speech_synthesis.cc
+@@ -25,6 +25,7 @@
+ 
+ #include "third_party/blink/renderer/modules/speech/speech_synthesis.h"
+ 
++#include <array>
+ #include <tuple>
+ 
+ #include "base/command_line.h"
+@@ -76,6 +77,41 @@ bool ShouldExposeVoiceForRenderIdentity(const std::string& voice_language) {
+          PrimaryLanguage(voice_language) == expected_language;
+ }
+ 
++bool UsesPrismLocaleVoiceCatalog() {
++  return base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
++             switches::kFingerprintRenderIdentity) == "v4";
++}
++
++std::string PrismVoiceLanguage() {
++  std::string language =
++      base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
++          switches::kFingerprintLanguage);
++  if (language.empty()) {
++    language = "en-US";
++  }
++  for (char& character : language) {
++    if (character == '_') {
++      character = '-';
++    }
++  }
++  return language;
++}
++
++std::array<const char*, 3> PrismVoiceNames(
++    const std::string& language) {
++  const std::string primary = PrimaryLanguage(language);
++  if (primary == "ja") {
++    return {"Microsoft Haruka", "Microsoft Ayumi", "Microsoft Ichiro"};
++  }
++  if (primary == "fr") {
++    return {"Microsoft Denise", "Microsoft Henri", "Microsoft Hortense"};
++  }
++  if (primary == "zh") {
++    return {"Microsoft Huihui", "Microsoft Kangkang", "Microsoft Yaoyao"};
++  }
++  return {"Microsoft Aria", "Microsoft Guy", "Microsoft Zira"};
++}
++
+ }  // namespace
+ 
+ SpeechSynthesisBase* SpeechSynthesis::Create(LocalDOMWindow& window) {
+@@ -108,9 +143,46 @@ SpeechSynthesis::SpeechSynthesis(LocalDOMWindow& window)
+     : local_dom_window_(window),
+       receiver_(this, &window),
+-      mojom_synthesis_(&window) {}
++      mojom_synthesis_(&window) {
++  if (UsesPrismLocaleVoiceCatalog()) {
++    const std::string language = PrismVoiceLanguage();
++    const auto names = PrismVoiceNames(language);
++    for (wtf_size_t index = 0; index < names.size(); ++index) {
++      auto voice = mojom::blink::SpeechSynthesisVoice::New();
++      voice->voice_uri = String::FromUTF8(names[index]);
++      voice->name = String::FromUTF8(names[index]);
++      voice->lang = String::FromUTF8(language);
++      voice->is_local_service = true;
++      voice->is_default = index == 0;
++      voice_list_.push_back(MakeGarbageCollected<SpeechSynthesisVoice>(
++          std::move(voice), String()));
++    }
++  }
++}
+ 
+ void SpeechSynthesis::OnSetVoiceList(
+     Vector<mojom::blink::SpeechSynthesisVoicePtr> mojom_voices) {
++  if (UsesPrismLocaleVoiceCatalog()) {
++    Vector<String> platform_names;
++    for (const auto& mojom_voice : mojom_voices) {
++      if (mojom_voice->is_local_service) {
++        platform_names.push_back(mojom_voice->name);
++      }
++    }
++    if (platform_names.empty()) {
++      for (const auto& mojom_voice : mojom_voices) {
++        platform_names.push_back(mojom_voice->name);
++      }
++    }
++    if (!platform_names.empty()) {
++      for (wtf_size_t index = 0; index < voice_list_.size(); ++index) {
++        voice_list_[index]->SetPlatformName(
++            platform_names[index % platform_names.size()]);
++      }
++    }
++    VoicesDidChange();
++    return;
++  }
++
+   voice_list_.clear();
+   for (auto& mojom_voice : mojom_voices) {
+     if (!ShouldExposeVoiceForRenderIdentity(mojom_voice->lang.Utf8())) {

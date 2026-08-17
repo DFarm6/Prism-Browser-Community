@@ -1,0 +1,105 @@
+--- a/third_party/blink/renderer/platform/graphics/image_data_buffer.h
++++ b/third_party/blink/renderer/platform/graphics/image_data_buffer.h
+@@ -49,6 +49,11 @@ class PLATFORM_EXPORT ImageDataBuffer {
+                    const double& quality,
+                    Vector<unsigned char>* encoded_image) const;
+ 
++  // Applies a deterministic, serialization-only profile signature. This does
++  // not alter the backing canvas or getImageData(), so repeated reads remain
++  // stable and canvas pixel-integrity probes continue to observe native data.
++  void ApplyPrismCanvasSerializationIdentity();
++
+   base::span<const uint8_t> PixelData() const;
+ 
+  private:
+--- a/third_party/blink/renderer/platform/graphics/image_data_buffer.cc
++++ b/third_party/blink/renderer/platform/graphics/image_data_buffer.cc
+@@ -34,8 +34,13 @@
+ 
+ #include "third_party/blink/renderer/platform/graphics/image_data_buffer.h"
+ 
++#include <cstring>
++
++#include "base/command_line.h"
+ #include "base/compiler_specific.h"
+ #include "base/memory/ptr_util.h"
++#include "base/strings/string_number_conversions.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "third_party/blink/renderer/platform/graphics/static_bitmap_image.h"
+ #include "third_party/blink/renderer/platform/image-encoders/image_encoder_utils.h"
+ #include "third_party/blink/renderer/platform/wtf/text/base64.h"
+@@ -128,6 +133,61 @@ base::span<const uint8_t> ImageDataBuffer::PixelData() const {
+   return gfx::SkPixmapToSpan(pixmap_);
+ }
+ 
++void ImageDataBuffer::ApplyPrismCanvasSerializationIdentity() {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  const std::string render_identity = command_line->GetSwitchValueASCII(
++      switches::kFingerprintRenderIdentity);
++  if ((render_identity != "v3" && render_identity != "v4") ||
++      (command_line->HasSwitch(switches::kDisableSpoofing) &&
++       command_line->GetSwitchValueASCII(switches::kDisableSpoofing)
++               .find("canvas") != std::string::npos)) {
++    return;
++  }
++
++  uint32_t fingerprint = 0;
++  if (!base::StringToUint(
++          command_line->GetSwitchValueASCII(switches::kFingerprint),
++          &fingerprint) ||
++      pixmap_.width() < 2 || pixmap_.height() < 2 ||
++      (pixmap_.colorType() != kRGBA_8888_SkColorType &&
++       pixmap_.colorType() != kBGRA_8888_SkColorType)) {
++    return;
++  }
++
++  const size_t byte_size = pixmap_.computeByteSize();
++  sk_sp<SkData> data = SkData::MakeUninitialized(byte_size);
++  std::memcpy(data->writable_data(), pixmap_.addr(), byte_size);
++  SkPixmap owned_pixmap(pixmap_.info(), data->writable_data(),
++                        pixmap_.rowBytes());
++
++  // Encode all 32 seed bits into RGB least-significant bits of the first
++  // opaque pixels. Distinct profile seeds therefore cannot collapse to the
++  // same serialized 2D canvas merely because a small text offset collided.
++  uint32_t bit = 0;
++  for (int y = 0; y < owned_pixmap.height() && bit < 32; ++y) {
++    for (int x = 0; x < owned_pixmap.width() && bit < 32; ++x) {
++      auto* pixel = static_cast<uint8_t*>(owned_pixmap.writable_addr(x, y));
++      if (!pixel || pixel[3] == 0) {
++        continue;
++      }
++      for (int channel = 0; channel < 3 && bit < 32; ++channel, ++bit) {
++        pixel[channel] = static_cast<uint8_t>(
++            (pixel[channel] & 0xfeu) | ((fingerprint >> bit) & 1u));
++      }
++    }
++  }
++  if (bit != 32) {
++    return;
++  }
++
++  retained_image_ = SkImages::RasterFromData(
++      owned_pixmap.info(), std::move(data), owned_pixmap.rowBytes());
++  if (retained_image_) {
++    retained_image_->peekPixels(&pixmap_);
++  }
++}
++
+ bool ImageDataBuffer::EncodeImage(const ImageEncodingMimeType mime_type,
+                                   const double& quality,
+                                   Vector<unsigned char>* encoded_image) const {
+--- a/third_party/blink/renderer/core/html/canvas/html_canvas_element.cc
++++ b/third_party/blink/renderer/core/html/canvas/html_canvas_element.cc
+@@ -1309,6 +1309,10 @@ String HTMLCanvasElement::ToDataURLInternal(
+     if (!data_buffer)
+       return String("data:,");
+ 
++    if (IsRenderingContext2D()) {
++      data_buffer->ApplyPrismCanvasSerializationIdentity();
++    }
++
+     String data_url = data_buffer->ToDataURL(encoding_mime_type, quality);
+     base::TimeDelta elapsed_time = base::TimeTicks::Now() - start_time;
+     float sqrt_pixels =

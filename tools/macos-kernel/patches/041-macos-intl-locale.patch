@@ -1,0 +1,29 @@
+--- a/content/renderer/renderer_main.cc
++++ b/content/renderer/renderer_main.cc
+@@ -65,5 +65,6 @@
+ #include "base/apple/scoped_nsautorelease_pool.h"
+ #include "base/message_loop/message_pump_apple.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "third_party/blink/public/web/web_view.h"
+ #endif  // BUILDFLAG(IS_MAC)
+ 
+@@ -162,6 +163,19 @@ int RendererMain(MainFunctionParams parameters) {
+ 
+   const base::CommandLine& command_line = *parameters.command_line;
+ 
++#if BUILDFLAG(IS_MAC)
++  // Chromium's --lang controls navigator.language and request headers on
++  // macOS, while V8 Intl still reads the host ICU default locale. Apply the
++  // profile locale before the renderer creates its first V8 isolate so
++  // Window, iframe and worker Intl defaults remain coherent with the profile.
++  if (command_line.HasSwitch(switches::kFingerprintLanguage)) {
++    const std::string fingerprint_locale = command_line.GetSwitchValueASCII(
++        switches::kFingerprintLanguage);
++    if (!fingerprint_locale.empty())
++      base::i18n::SetICUDefaultLocale(fingerprint_locale);
++  }
++#endif  // BUILDFLAG(IS_MAC)
++
+ #if BUILDFLAG(IS_MAC)
+   base::apple::ScopedNSAutoreleasePool* pool = parameters.autorelease_pool;
+ #endif  // BUILDFLAG(IS_MAC)

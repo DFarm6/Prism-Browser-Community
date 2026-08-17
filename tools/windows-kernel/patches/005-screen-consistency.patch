@@ -1,0 +1,80 @@
+diff --git a/third_party/blink/renderer/core/frame/screen.cc b/third_party/blink/renderer/core/frame/screen.cc
+--- a/third_party/blink/renderer/core/frame/screen.cc
++++ b/third_party/blink/renderer/core/frame/screen.cc
+@@ -187,6 +187,16 @@ gfx::Rect Screen::GetRect(bool available) const {
+       fingerprint_height >= 600 && fingerprint_height <= 16384;
+   if (has_fingerprint_size) {
+     rect = gfx::Rect(fingerprint_width, fingerprint_height);
++    if (available &&
++        command_line->HasSwitch(switches::kFingerprintPlatform)) {
++      const std::string platform = command_line->GetSwitchValueASCII(
++          switches::kFingerprintPlatform);
++      if (platform == "macos" && fingerprint_height > 25) {
++        rect = gfx::Rect(0, 25, fingerprint_width, fingerprint_height - 25);
++      } else if (platform == "windows" && fingerprint_height > 48) {
++        rect = gfx::Rect(0, 0, fingerprint_width, fingerprint_height - 48);
++      }
++    }
+   }
+ 
+   if (frame->GetSettings()->GetReportScreenSizeInPhysicalPixelsQuirk())
+diff --git a/third_party/blink/renderer/core/css/media_values.cc b/third_party/blink/renderer/core/css/media_values.cc
+--- a/third_party/blink/renderer/core/css/media_values.cc
++++ b/third_party/blink/renderer/core/css/media_values.cc
+@@ -4,6 +4,9 @@
+ 
+ #include "third_party/blink/renderer/core/css/media_values.h"
+ 
++#include "base/command_line.h"
++#include "base/strings/string_number_conversions.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "third_party/blink/public/common/css/scripting.h"
+ #include "third_party/blink/renderer/core/css/css_resolution_units.h"
+ #include "third_party/blink/renderer/core/css/css_to_length_conversion_data.h"
+@@ -32,7 +35,24 @@
+ #include "ui/display/screen_info.h"
+ 
+ namespace blink {
++
++namespace {
++
++std::optional<int> FingerprintScreenDimension(const char* switch_name) {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  int value = 0;
++  if (!command_line->HasSwitch(switch_name) ||
++      !base::StringToInt(command_line->GetSwitchValueASCII(switch_name),
++                        &value) ||
++      value < 600 || value > 16384) {
++    return std::nullopt;
++  }
++  return value;
++}
+ 
++}  // namespace
++
+ ForcedColors CSSValueIDToForcedColors(CSSValueID id) {
+   switch (id) {
+     case CSSValueID::kActive:
+@@ -166,7 +186,9 @@ int MediaValues::CalculateDeviceWidth(LocalFrame* frame) {
+   DCHECK(frame && frame->View() && frame->GetSettings() && frame->GetPage());
+   const display::ScreenInfo& screen_info =
+       frame->GetPage()->GetChromeClient().GetScreenInfo(*frame);
+-  int device_width = screen_info.rect.width();
++  int device_width =
++      FingerprintScreenDimension(switches::kFingerprintScreenWidth)
++          .value_or(screen_info.rect.width());
+   if (frame->GetSettings()->GetReportScreenSizeInPhysicalPixelsQuirk()) {
+     device_width = static_cast<int>(
+         lroundf(device_width * screen_info.device_scale_factor));
+@@ -178,7 +200,9 @@ int MediaValues::CalculateDeviceHeight(LocalFrame* frame) {
+   DCHECK(frame && frame->View() && frame->GetSettings() && frame->GetPage());
+   const display::ScreenInfo& screen_info =
+       frame->GetPage()->GetChromeClient().GetScreenInfo(*frame);
+-  int device_height = screen_info.rect.height();
++  int device_height =
++      FingerprintScreenDimension(switches::kFingerprintScreenHeight)
++          .value_or(screen_info.rect.height());
+   if (frame->GetSettings()->GetReportScreenSizeInPhysicalPixelsQuirk()) {
+     device_height = static_cast<int>(
+         lroundf(device_height * screen_info.device_scale_factor));

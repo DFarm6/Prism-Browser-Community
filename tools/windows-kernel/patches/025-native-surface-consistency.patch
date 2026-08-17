@@ -1,0 +1,124 @@
+--- a/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
++++ b/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
+@@ -128,10 +128,16 @@ double PrismCanvasTextOffset() {
+     return 0;
+   }
+   uint32_t state = fingerprint ^ 0x27d4eb2du;
+-  state ^= state << 13;
+-  state ^= state >> 17;
+-  state ^= state << 5;
+-  return static_cast<double>(1u + (state % 8u)) / 64.0;
++  state ^= state >> 16;
++  state *= 0x7feb352du;
++  state ^= state >> 15;
++  state *= 0x846ca68bu;
++  state ^= state >> 16;
++  constexpr uint32_t kCanvasNoiseMask = 0xffffu;
++  const double normalized =
++      static_cast<double>(state & kCanvasNoiseMask) /
++      static_cast<double>(kCanvasNoiseMask);
++  return (1.0 + 7.0 * normalized) / 64.0;
+ }
+ 
+ wgpu::TextureFormat AsDawnType(const viz::SharedImageFormat& format) {
+--- a/third_party/blink/renderer/core/html/canvas/text_metrics.cc
++++ b/third_party/blink/renderer/core/html/canvas/text_metrics.cc
+@@ -4,7 +4,9 @@
+ 
+ #include "third_party/blink/renderer/core/html/canvas/text_metrics.h"
+ 
++#include "base/command_line.h"
+ #include "base/numerics/checked_math.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "third_party/blink/renderer/bindings/core/v8/v8_canvas_text_align.h"
+ #include "third_party/blink/renderer/bindings/core/v8/v8_canvas_text_baseline.h"
+ #include "third_party/blink/renderer/bindings/core/v8/v8_text_cluster_options.h"
+@@ -90,6 +92,13 @@
+ }
+ 
+ void TextMetrics::Shuffle(const double factor) {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  if (command_line->GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) == "v3") {
++    return;
++  }
++
+   // x-direction
+   width_ *= factor;
+   actual_bounding_box_left_ *= factor;
+--- a/third_party/blink/renderer/platform/graphics/static_bitmap_image.cc
++++ b/third_party/blink/renderer/platform/graphics/static_bitmap_image.cc
+@@ -124,6 +124,13 @@
+ #define writable_addr(T, p, stride, x, y) (T*)((const char *)p + y * stride + x * sizeof(T))
+ 
+ void StaticBitmapImage::ShuffleSubchannelColorData(const void *addr, const SkImageInfo& info, int srcX, int srcY) {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  if (command_line->GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) == "v3") {
++    return;
++  }
++
+   auto w = info.width() - srcX, h = info.height() - srcY;
+ 
+   // skip tiny images; info.width()/height() can also be 0
+@@ -136,6 +143,5 @@
+ 
+   std::string seed_str = "0";
+-  const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+   if (command_line->HasSwitch(switches::kFingerprint) &&
+       (!command_line->HasSwitch(switches::kDisableSpoofing) ||
+        command_line->GetSwitchValueASCII(switches::kDisableSpoofing).find("canvas") == std::string::npos)) {
+--- a/third_party/blink/renderer/modules/webaudio/offline_audio_destination_node.cc
++++ b/third_party/blink/renderer/modules/webaudio/offline_audio_destination_node.cc
+@@ -24,7 +24,10 @@
+ #include "third_party/blink/renderer/modules/webaudio/offline_audio_destination_node.h"
+ 
+ #include <algorithm>
++#include <cmath>
+ 
++#include "base/command_line.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "third_party/blink/public/platform/platform.h"
+ #include "third_party/blink/renderer/core/execution_context/execution_context.h"
+ #include "third_party/blink/renderer/modules/webaudio/audio_node_input.h"
+@@ -60,6 +63,16 @@
+     unsigned number_of_channels,
+     uint32_t frames_to_process,
+     float sample_rate) {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  if (command_line->GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) == "v3") {
++    const float integral_sample_rate = std::round(sample_rate);
++    if (std::abs(sample_rate - integral_sample_rate) < 0.05f) {
++      sample_rate = integral_sample_rate;
++    }
++  }
++
+   return MakeGarbageCollected<OfflineAudioDestinationNode>(
+       *context, number_of_channels, frames_to_process, sample_rate);
+ }
+--- a/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
++++ b/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
+@@ -220,9 +220,18 @@ void ApplyRenderIdentityToWebGLPixels(void* data,
+               "macos"
+           ? 11u
+           : 57u;
+-  uint32_t state = (fingerprint % gpu_count) ^ 0x85ebca6bu ^
++  const uint32_t identity_seed =
++      render_identity == "v3" ? fingerprint : fingerprint % gpu_count;
++  uint32_t state = identity_seed ^ 0x85ebca6bu ^
+                    static_cast<uint32_t>(width) ^
+                    (static_cast<uint32_t>(height) << 16);
++  if (render_identity == "v3") {
++    state ^= state >> 16;
++    state *= 0x7feb352du;
++    state ^= state >> 15;
++    state *= 0x846ca68bu;
++    state ^= state >> 16;
++  }
+   const size_t channels = format == GL_RGBA ? 4u : 3u;
+   const size_t byte_count =
+       static_cast<size_t>(width) * static_cast<size_t>(height) * channels;

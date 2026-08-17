@@ -1,0 +1,14 @@
+--- a/third_party/blink/renderer/platform/fonts/font_cache.cc
++++ b/third_party/blink/renderer/platform/fonts/font_cache.cc
+@@ -371,7 +371,10 @@ const FontPlatformData* FontCache::GetFontPlatformData(
+         }
+         // 5%概率显示，继续默认流程
+       }
+-    } else {
++    } else if (command_line->GetSwitchValueASCII(
++                   switches::kFingerprintRenderIdentity) != "v4") {
++      // Legacy identities keep seed-dependent font filtering. Prism v4 keeps
++      // the native OS inventory intact so it remains a plausible font set.
+       // 系统相同，随机隐藏2%的字体以生成指纹
+       float probability = static_cast<float>(hash) / static_cast<float>(std::numeric_limits<uint32_t>::max());
+       if (probability < 0.02) {

@@ -1,0 +1,16 @@
+--- a/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
++++ b/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
+@@ -135,8 +135,11 @@ double PrismCanvasTextOffset(uint32_t salt) {
+   state ^= state >> 15;
+   state *= 0x846ca68bu;
+   state ^= state >> 16;
+-  constexpr uint32_t kCanvasOffsetMask = 0x3fu;
+-  return static_cast<double>(1u + (state & kCanvasOffsetMask)) / 64.0;
++  constexpr uint32_t kCanvasOffsetBits = 6u;
++  constexpr uint32_t kCanvasOffsetScale = 1u << kCanvasOffsetBits;
++  const uint32_t slot = state >> (32u - kCanvasOffsetBits);
++  return static_cast<double>(1u + slot) /
++         static_cast<double>(kCanvasOffsetScale);
+ }
+ 
+ wgpu::TextureFormat AsDawnType(const viz::SharedImageFormat& format) {

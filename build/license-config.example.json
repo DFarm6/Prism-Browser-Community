@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "product": "prism-pro",
+  "activationBaseUrl": "https://license.dfarm.vip/",
+  "licensePublicKey": "-----BEGIN PUBLIC KEY-----\nREPLACE_WITH_OFFLINE_ED25519_PUBLIC_KEY\n-----END PUBLIC KEY-----\n"
+}

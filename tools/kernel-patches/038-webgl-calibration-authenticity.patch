@@ -1,0 +1,62 @@
+--- a/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
++++ b/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
+@@ -194,6 +194,48 @@ uint32_t NextWebGLRenderIdentityState(uint32_t state) {
+   return state;
+ }
+ 
++bool IsPrismWebGLCalibrationSurface(const uint8_t* bytes,
++                                    GLsizei width,
++                                    GLsizei height,
++                                    size_t row_bytes,
++                                    size_t channels) {
++  if (!bytes || width <= 0 || height <= 0 || channels < 3u) {
++    return false;
++  }
++
++  // Integrity scanners render solid reference colors and expect an exact
++  // native readback. Applying a profile signature to those calibration
++  // buffers is both unnecessary and directly observable. Preserve surfaces
++  // whose visible pixels all have the same RGB value; real fingerprint
++  // shaders contain multiple colors and continue through the identity path.
++  bool found_visible_pixel = false;
++  uint8_t reference_red = 0;
++  uint8_t reference_green = 0;
++  uint8_t reference_blue = 0;
++  for (GLsizei row = 0; row < height; ++row) {
++    for (GLsizei column = 0; column < width; ++column) {
++      const uint8_t* pixel =
++          bytes + static_cast<size_t>(row) * row_bytes +
++          static_cast<size_t>(column) * channels;
++      if (channels >= 4u && pixel[3] == 0u) {
++        continue;
++      }
++      if (!found_visible_pixel) {
++        found_visible_pixel = true;
++        reference_red = pixel[0];
++        reference_green = pixel[1];
++        reference_blue = pixel[2];
++        continue;
++      }
++      if (pixel[0] != reference_red || pixel[1] != reference_green ||
++          pixel[2] != reference_blue) {
++        return false;
++      }
++    }
++  }
++  return found_visible_pixel;
++}
++
+ void ApplyRenderIdentityToWebGLPixels(void* data,
+                                       GLsizei width,
+                                       GLsizei height,
+@@ -231,6 +273,10 @@ void ApplyRenderIdentityToWebGLPixels(void* data,
+   const uint32_t identity_seed =
+       coherent_render_identity ? fingerprint : fingerprint % gpu_count;
+   uint8_t* bytes = static_cast<uint8_t*>(data);
++  if (IsPrismWebGLCalibrationSurface(bytes, width, height, row_bytes,
++                                     channels)) {
++    return;
++  }
+   for (GLsizei row = 0; row < height; ++row) {
+     const int absolute_y = top_left_rows
+                                ? canvas_height - 1 - (origin_y + row)

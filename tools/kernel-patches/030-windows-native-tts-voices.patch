@@ -1,0 +1,35 @@
+diff --git a/content/browser/speech/tts_win.cc b/content/browser/speech/tts_win.cc
+index 4ebed295f96d9..ae18192aa468e 100644
+--- a/content/browser/speech/tts_win.cc
++++ b/content/browser/speech/tts_win.cc
+@@ -501,11 +501,27 @@ void TtsPlatformImplBackgroundWorker::SetVoiceFromName(
+ 
+ bool TtsPlatformImplBackgroundWorker::GetVoiceTokens(
+     Microsoft::WRL::ComPtr<IEnumSpObjectTokens>* out_tokens) {
+-  if (S_OK ==
+-      SpEnumTokens(kSPCategoryOneCoreVoices, NULL, NULL, &(*out_tokens))) {
+-  } else if (S_OK != SpEnumTokens(SPCAT_VOICES, NULL, NULL, &(*out_tokens))) {
++  // SpEnumTokens may return S_OK with an empty OneCore enumerator. Treating
++  // that as success hides every installed desktop SAPI voice and leaves the
++  // Web Speech API with an empty voice list. Prefer OneCore when it contains
++  // usable tokens, then fall back to the desktop category when it does not.
++  ULONG voice_count = 0;
++  if (S_OK == SpEnumTokens(kSPCategoryOneCoreVoices, NULL, NULL,
++                           &(*out_tokens)) &&
++      out_tokens->Get() &&
++      S_OK == (*out_tokens)->GetCount(&voice_count) && voice_count > 0) {
++    return true;
++  }
++
++  out_tokens->Reset();
++  voice_count = 0;
++  if (S_OK != SpEnumTokens(SPCAT_VOICES, NULL, NULL, &(*out_tokens)) ||
++      !out_tokens->Get() ||
++      S_OK != (*out_tokens)->GetCount(&voice_count) || voice_count == 0) {
++    out_tokens->Reset();
+     return false;
+   }
++
+   return true;
+ }
+ 

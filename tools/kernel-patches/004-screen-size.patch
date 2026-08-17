@@ -1,0 +1,40 @@
+diff --git a/third_party/blink/renderer/core/frame/screen.cc b/third_party/blink/renderer/core/frame/screen.cc
+--- a/third_party/blink/renderer/core/frame/screen.cc
++++ b/third_party/blink/renderer/core/frame/screen.cc
+@@ -24,7 +24,10 @@
+ 
+ #include "third_party/blink/renderer/core/frame/screen.h"
+ 
++#include "base/command_line.h"
+ #include "base/numerics/safe_conversions.h"
++#include "base/strings/string_number_conversions.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "services/network/public/mojom/permissions_policy/permissions_policy_feature.mojom-blink.h"
+ #include "third_party/blink/renderer/core/event_target_names.h"
+ #include "third_party/blink/renderer/core/frame/local_dom_window.h"
+@@ -136,5 +139,25 @@ gfx::Rect Screen::GetRect(bool available) const {
+   const display::ScreenInfo& screen_info = GetScreenInfo();
+   gfx::Rect rect = available ? screen_info.available_rect : screen_info.rect;
++
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  int fingerprint_width = 0;
++  int fingerprint_height = 0;
++  const bool has_fingerprint_size =
++      command_line->HasSwitch(switches::kFingerprintScreenWidth) &&
++      command_line->HasSwitch(switches::kFingerprintScreenHeight) &&
++      base::StringToInt(command_line->GetSwitchValueASCII(
++                            switches::kFingerprintScreenWidth),
++                        &fingerprint_width) &&
++      base::StringToInt(command_line->GetSwitchValueASCII(
++                            switches::kFingerprintScreenHeight),
++                        &fingerprint_height) &&
++      fingerprint_width >= 800 && fingerprint_width <= 16384 &&
++      fingerprint_height >= 600 && fingerprint_height <= 16384;
++  if (has_fingerprint_size) {
++    rect = gfx::Rect(fingerprint_width, fingerprint_height);
++  }
++
+   if (frame->GetSettings()->GetReportScreenSizeInPhysicalPixelsQuirk())
+     return gfx::ScaleToRoundedRect(rect, screen_info.device_scale_factor);
+   return rect;

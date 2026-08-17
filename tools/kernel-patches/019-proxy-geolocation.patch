@@ -1,0 +1,72 @@
+diff --git a/third_party/blink/renderer/core/geolocation/geolocation.cc b/third_party/blink/renderer/core/geolocation/geolocation.cc
+--- a/third_party/blink/renderer/core/geolocation/geolocation.cc
++++ b/third_party/blink/renderer/core/geolocation/geolocation.cc
+@@ -30,7 +30,11 @@
+ #include <algorithm>
+ #include <optional>
+ 
++#include "base/command_line.h"
++#include "base/strings/string_number_conversions.h"
++#include "base/strings/string_split.h"
+ #include "base/task/single_thread_task_runner.h"
+ #include "build/build_config.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "services/device/public/mojom/geoposition.mojom-blink.h"
+ #include "services/network/public/mojom/permissions_policy/permissions_policy_feature.mojom-blink.h"
+@@ -63,5 +67,43 @@ const char kFeaturePolicyConsoleWarning[] =
+     "applied to the current document. See https://crbug.com/414348233 for more "
+     "details.";
+ 
++struct FingerprintLocation {
++  double latitude;
++  double longitude;
++  double accuracy;
++};
++
++std::optional<FingerprintLocation> GetFingerprintLocation() {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  if (!command_line->HasSwitch(switches::kFingerprintLocation))
++    return std::nullopt;
++  const std::vector<std::string> values = base::SplitString(
++      command_line->GetSwitchValueASCII(switches::kFingerprintLocation), ",",
++      base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
++  if (values.size() < 2 || values.size() > 3)
++    return std::nullopt;
++  FingerprintLocation location{0, 0, 25000};
++  if (!base::StringToDouble(values[0], &location.latitude) ||
++      !base::StringToDouble(values[1], &location.longitude) ||
++      (values.size() == 3 &&
++       !base::StringToDouble(values[2], &location.accuracy)) ||
++      location.latitude < -90 || location.latitude > 90 ||
++      location.longitude < -180 || location.longitude > 180 ||
++      location.accuracy <= 0) {
++    return std::nullopt;
++  }
++  return location;
++}
++
++Geoposition* CreateFingerprintGeoposition(
++    const FingerprintLocation& location) {
++  auto* coordinates = MakeGarbageCollected<GeolocationCoordinates>(
++      location.latitude, location.longitude, std::nullopt, location.accuracy,
++      std::nullopt, std::nullopt, std::nullopt);
++  return MakeGarbageCollected<Geoposition>(
++      coordinates, ConvertTimeToEpochTimeStamp(base::Time::Now()));
++}
++
+ Geoposition* CreateGeoposition(
+     const device::mojom::blink::Geoposition& position) {
+@@ -595,6 +637,12 @@ void Geolocation::ResetGeolocationConnection() {
+ }
+ 
+ void Geolocation::QueryNextPosition() {
++  if (const auto location = GetFingerprintLocation()) {
++    updating_ = false;
++    last_position_ = CreateFingerprintGeoposition(*location);
++    PositionChanged();
++    return;
++  }
+   geolocation_->QueryNextPosition(
+       blink::BindOnce(&Geolocation::OnPositionUpdated, WrapPersistent(this)));
+ }

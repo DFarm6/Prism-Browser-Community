@@ -1,0 +1,382 @@
+diff --git a/chrome/browser/ui/views/frame/browser_view.cc b/chrome/browser/ui/views/frame/browser_view.cc
+index bcf82af1b52a2..08e8fb85250ad 100644
+--- a/chrome/browser/ui/views/frame/browser_view.cc
++++ b/chrome/browser/ui/views/frame/browser_view.cc
+@@ -36,6 +36,7 @@
+ #include "base/scoped_observation.h"
+ #include "base/strings/string_number_conversions.h"
+ #include "base/strings/stringprintf.h"
++#include "base/strings/utf_string_conversions.h"
+ #include "base/task/sequenced_task_runner.h"
+ #include "base/task/single_thread_task_runner.h"
+ #include "base/trace_event/trace_event.h"
+@@ -3774,6 +3775,21 @@ bool BrowserView::CanActivate() const {
+ std::u16string BrowserView::GetWindowTitle() const {
+   std::u16string title =
+       browser_->GetWindowTitleForCurrentTab(true /* include_app_name */);
++  // Prism profile identity: keep a stable environment number visible in the
++  // native title, Alt-Tab and taskbar previews even when the active tab title
++  // changes. Only a short decimal value is accepted.
++  const std::string prism_serial =
++      base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
++          "prism-profile-serial");
++  if (!prism_serial.empty() && prism_serial.size() <= 9 &&
++      std::all_of(prism_serial.begin(), prism_serial.end(),
++                  [](char value) { return value >= '0' && value <= '9'; })) {
++    const std::u16string prefix =
++        u"[" + base::UTF8ToUTF16(prism_serial) + u"] ";
++    if (title.compare(0, prefix.size(), prefix) != 0) {
++      title.insert(0, prefix);
++    }
++  }
+ #if BUILDFLAG(IS_MAC)
+   bool any_tab_playing_audio = false;
+   bool any_tab_playing_muted_audio = false;
+diff --git a/chrome/browser/ui/views/frame/browser_window_property_manager_win.cc b/chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
+index 62dc6ab307654..88c446caf7600 100644
+--- a/chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
++++ b/chrome/browser/ui/views/frame/browser_window_property_manager_win.cc
+@@ -4,6 +4,10 @@
+ 
+ #include "chrome/browser/ui/views/frame/browser_window_property_manager_win.h"
+ 
++#include <shobjidl.h>
++
++#include <optional>
++
+ #include "base/command_line.h"
+ #include "base/functional/bind.h"
+ #include "base/strings/utf_string_conversions.h"
+@@ -24,6 +28,104 @@
+ 
+ using extensions::ExtensionRegistry;
+ 
++namespace {
++
++constexpr char kPrismProfileIdSwitch[] = "prism-profile-id";
++constexpr char kPrismProfileSerialSwitch[] = "prism-profile-serial";
++
++std::optional<std::string> GetPrismSwitchValue(const char* name,
++                                                size_t maximum_length,
++                                                bool decimal_only) {
++  const std::string value =
++      base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(name);
++  if (value.empty() || value.size() > maximum_length) {
++    return std::nullopt;
++  }
++  for (char character : value) {
++    const bool valid = decimal_only
++                           ? character >= '0' && character <= '9'
++                           : (character >= 'a' && character <= 'z') ||
++                                 (character >= 'A' && character <= 'Z') ||
++                                 (character >= '0' && character <= '9') ||
++                                 character == '-';
++    if (!valid) {
++      return std::nullopt;
++    }
++  }
++  return value;
++}
++
++HICON CreatePrismProfileOverlay(const std::wstring& serial) {
++  constexpr int kIconSize = 32;
++  BITMAPINFO bitmap_info = {};
++  bitmap_info.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
++  bitmap_info.bmiHeader.biWidth = kIconSize;
++  bitmap_info.bmiHeader.biHeight = -kIconSize;
++  bitmap_info.bmiHeader.biPlanes = 1;
++  bitmap_info.bmiHeader.biBitCount = 32;
++  bitmap_info.bmiHeader.biCompression = BI_RGB;
++  void* pixels = nullptr;
++  HBITMAP color_bitmap =
++      CreateDIBSection(nullptr, &bitmap_info, DIB_RGB_COLORS, &pixels, nullptr,
++                       0);
++  if (!color_bitmap || !pixels) {
++    return nullptr;
++  }
++  const BYTE mask_bits[kIconSize * kIconSize / 8] = {};
++  HBITMAP mask_bitmap =
++      CreateBitmap(kIconSize, kIconSize, 1, 1, mask_bits);
++  HDC drawing_context = CreateCompatibleDC(nullptr);
++  HGDIOBJ previous_bitmap = SelectObject(drawing_context, color_bitmap);
++  RECT bounds = {0, 0, kIconSize, kIconSize};
++  HBRUSH background = CreateSolidBrush(RGB(230, 126, 34));
++  FillRect(drawing_context, &bounds, background);
++  DeleteObject(background);
++  SetBkMode(drawing_context, TRANSPARENT);
++  SetTextColor(drawing_context, RGB(255, 255, 255));
++  const int font_height = serial.size() <= 3 ? 18 : serial.size() <= 5 ? 14 : 11;
++  HFONT font = CreateFontW(-font_height, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
++                           DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
++                           CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
++                           DEFAULT_PITCH | FF_SWISS, L"Segoe UI");
++  HGDIOBJ previous_font = SelectObject(drawing_context, font);
++  DrawTextW(drawing_context, serial.c_str(), static_cast<int>(serial.size()),
++            &bounds, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
++  auto* pixel_values = static_cast<DWORD*>(pixels);
++  for (int index = 0; index < kIconSize * kIconSize; ++index) {
++    pixel_values[index] |= 0xff000000;
++  }
++  SelectObject(drawing_context, previous_font);
++  SelectObject(drawing_context, previous_bitmap);
++  DeleteObject(font);
++  DeleteDC(drawing_context);
++  ICONINFO icon_info = {};
++  icon_info.fIcon = TRUE;
++  icon_info.hbmMask = mask_bitmap;
++  icon_info.hbmColor = color_bitmap;
++  HICON icon = CreateIconIndirect(&icon_info);
++  DeleteObject(mask_bitmap);
++  DeleteObject(color_bitmap);
++  return icon;
++}
++
++void SetPrismProfileOverlay(HWND hwnd, const std::string& serial) {
++  ITaskbarList3* taskbar = nullptr;
++  if (FAILED(CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER,
++                              IID_PPV_ARGS(&taskbar)))) {
++    return;
++  }
++  if (SUCCEEDED(taskbar->HrInit())) {
++    HICON icon = CreatePrismProfileOverlay(base::UTF8ToWide(serial));
++    if (icon) {
++      taskbar->SetOverlayIcon(hwnd, icon, base::UTF8ToWide(serial).c_str());
++      DestroyIcon(icon);
++    }
++  }
++  taskbar->Release();
++}
++
++}  // namespace
++
+ BrowserWindowPropertyManager::BrowserWindowPropertyManager(
+     const BrowserView* view,
+     HWND hwnd)
+@@ -61,5 +163,11 @@ void BrowserWindowPropertyManager::UpdateWindowProperties() {
+           : shell_integration::win::GetAppUserModelIdForBrowser(
+                 profile->GetPath());
++  const std::optional<std::string> prism_profile_id =
++      GetPrismSwitchValue(kPrismProfileIdSwitch, 100, false);
++  if (prism_profile_id) {
++    app_id =
++        L"com.prismbrowser.profile." + base::UTF8ToWide(*prism_profile_id);
++  }
+   // Apps set their relaunch details based on app's details.
+   if (browser->is_type_app() || browser->is_type_app_popup()) {
+     ExtensionRegistry* registry = ExtensionRegistry::Get(profile);
+@@ -98,6 +206,11 @@ void BrowserWindowPropertyManager::UpdateWindowProperties() {
+   }
+   ui::win::SetAppDetailsForWindow(app_id, icon_path, 0, command_line_string,
+                                   pinned_name, hwnd_);
++  const std::optional<std::string> prism_serial =
++      GetPrismSwitchValue(kPrismProfileSerialSwitch, 9, true);
++  if (prism_serial) {
++    SetPrismProfileOverlay(hwnd_, *prism_serial);
++  }
+ }
+ 
+ // static
+diff --git a/chrome/browser/ui/views/toolbar/toolbar_view.cc b/chrome/browser/ui/views/toolbar/toolbar_view.cc
+index 617697886826e..61ad786d97f38 100644
+--- a/chrome/browser/ui/views/toolbar/toolbar_view.cc
++++ b/chrome/browser/ui/views/toolbar/toolbar_view.cc
+@@ -123,6 +123,7 @@
+ #include "ui/gfx/scoped_canvas.h"
+ #include "ui/views/accessibility/view_accessibility.h"
+ #include "ui/views/background.h"
++#include "ui/views/controls/label.h"
+ #include "ui/views/cascading_property.h"
+ #include "ui/views/layout/fill_layout.h"
+ #include "ui/views/layout/flex_layout.h"
+@@ -385,6 +386,24 @@ void ToolbarView::Init() {
+         std::make_unique<ContextualTasksButton>(browser_));
+   }
+ 
++  // Prism profile identity: mirror the permanent environment number inside
++  // the browser chrome so operators can identify tiled windows without
++  // relying on the current page title.
++  const std::string prism_serial =
++      base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
++          "prism-profile-serial");
++  if (!prism_serial.empty() && prism_serial.size() <= 9 &&
++      std::all_of(prism_serial.begin(), prism_serial.end(),
++                  [](char value) { return value >= '0' && value <= '9'; })) {
++    auto identity_label =
++        std::make_unique<views::Label>(base::UTF8ToUTF16(prism_serial));
++    identity_label->SetHorizontalAlignment(gfx::ALIGN_CENTER);
++    identity_label->SetPreferredSize(gfx::Size(36, 32));
++    identity_label->SetTooltipText(
++        u"Prism environment " + base::UTF8ToUTF16(prism_serial));
++    container_view_->AddChildView(std::move(identity_label));
++  }
++
+   location_bar_ = container_view_->AddChildView(std::move(location_bar));
+ 
+   if (extensions_container) {
+diff --git a/chrome/browser/ui/cocoa/dock_icon.h b/chrome/browser/ui/cocoa/dock_icon.h
+index 6edc46c209ebe..88f99f27f194d 100644
+--- a/chrome/browser/ui/cocoa/dock_icon.h
++++ b/chrome/browser/ui/cocoa/dock_icon.h
+@@ -17,6 +17,9 @@
+ 
+ + (DockIcon*)sharedDockIcon;
+ 
++// Sets the permanent Prism environment number drawn over the Dock icon.
+++ (void)setPrismSerial:(NSString*)serial;
++
+ // Updates the icon. Use the setters below to set the details first.
+ - (void)updateIcon;
+ 
+diff --git a/chrome/browser/ui/cocoa/dock_icon.mm b/chrome/browser/ui/cocoa/dock_icon.mm
+index a9de343cf6552..121677296d536 100644
+--- a/chrome/browser/ui/cocoa/dock_icon.mm
++++ b/chrome/browser/ui/cocoa/dock_icon.mm
+@@ -6,9 +6,13 @@
+ 
+ #include <stdint.h>
+ 
++#include <algorithm>
++
+ #include "base/apple/bundle_locations.h"
+ #include "base/apple/foundation_util.h"
+ #include "base/check_op.h"
++#include "base/command_line.h"
++#include "base/strings/sys_string_conversions.h"
+ #include "content/public/browser/browser_thread.h"
+ #include "ui/gfx/scoped_ns_graphics_context_save_gstate_mac.h"
+ 
+@@ -40,6 +44,9 @@ constexpr int64_t kUpdateFrequencyMs = 200;
+ // Indicates the amount of progress made of the download. Ranges from [0..1].
+ @property(nonatomic) float progress;
+ 
++// Permanent Prism environment number displayed on the Dock icon.
++@property(nonatomic, copy) NSString* prismSerial;
++
+ @end
+ 
+ @implementation DockTileView
+@@ -47,6 +54,41 @@ constexpr int64_t kUpdateFrequencyMs = 200;
+ @synthesize downloads = _downloads;
+ @synthesize indeterminate = _indeterminate;
+ @synthesize progress = _progress;
++@synthesize prismSerial = _prismSerial;
++
++- (void)drawPrismSerialBadge {
++  if (_prismSerial.length == 0) {
++    return;
++  }
++
++  constexpr CGFloat kPrismBadgeHeight = 26;
++  constexpr CGFloat kPrismBadgeMargin = 3;
++  constexpr CGFloat kPrismBadgeHorizontalPadding = 7;
++  NSFont* font = [NSFont systemFontOfSize:15 weight:NSFontWeightBold];
++  NSDictionary* attributes = @{
++    NSForegroundColorAttributeName : NSColor.whiteColor,
++    NSFontAttributeName : font,
++  };
++  const NSSize text_size = [_prismSerial sizeWithAttributes:attributes];
++  const CGFloat badge_width =
++      std::max(kPrismBadgeHeight,
++               text_size.width + kPrismBadgeHorizontalPadding * 2);
++  const NSRect badge_rect =
++      NSMakeRect(NSMaxX(self.bounds) - badge_width - kPrismBadgeMargin,
++                 NSMaxY(self.bounds) - kPrismBadgeHeight - kPrismBadgeMargin,
++                 badge_width, kPrismBadgeHeight);
++  NSBezierPath* background =
++      [NSBezierPath bezierPathWithRoundedRect:badge_rect xRadius:7 yRadius:7];
++  [[NSColor colorWithSRGBRed:0xe6 / 255.0
++                       green:0x7e / 255.0
++                        blue:0x22 / 255.0
++                       alpha:1] setFill];
++  [background fill];
++  const NSPoint text_origin =
++      NSMakePoint(NSMidX(badge_rect) - text_size.width / 2,
++                  NSMidY(badge_rect) - text_size.height / 2);
++  [_prismSerial drawAtPoint:text_origin withAttributes:attributes];
++}
+ 
+ - (void)drawRect:(NSRect)dirtyRect {
+   // This needs to draw the current app icon, whether it's using the default
+@@ -73,6 +115,7 @@ constexpr int64_t kUpdateFrequencyMs = 200;
+              fraction:1.0];
+ 
+   if (_downloads == 0) {
++    [self drawPrismSerialBadge];
+     return;
+   }
+ 
+@@ -185,6 +228,7 @@ constexpr int64_t kUpdateFrequencyMs = 200;
+   countOrigin.y -= countSize.height / 2;
+ 
+   [countAttrString drawAtPoint:countOrigin];
++  [self drawPrismSerialBadge];
+ }
+ 
+ @end
+@@ -196,7 +240,16 @@ constexpr int64_t kUpdateFrequencyMs = 200;
+   if (!icon) {
+     NSDockTile* dockTile = [NSApp dockTile];
+ 
+-    dockTile.contentView = [[DockTileView alloc] init];
++    DockTileView* dock_tile_view = [[DockTileView alloc] init];
++    const std::string prism_serial =
++        base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
++            "prism-profile-serial");
++    if (!prism_serial.empty() && prism_serial.size() <= 9 &&
++        std::all_of(prism_serial.begin(), prism_serial.end(),
++                    [](char value) { return value >= '0' && value <= '9'; })) {
++      dock_tile_view.prismSerial = base::SysUTF8ToNSString(prism_serial);
++    }
++    dockTile.contentView = dock_tile_view;
+ 
+     icon = [[DockIcon alloc] init];
+   }
+@@ -204,6 +257,15 @@ constexpr int64_t kUpdateFrequencyMs = 200;
+   return icon;
+ }
+ 
+++ (void)setPrismSerial:(NSString*)serial {
++  [self sharedDockIcon];
++  DockTileView* dock_tile_view =
++      base::apple::ObjCCast<DockTileView>(NSApp.dockTile.contentView);
++  dock_tile_view.prismSerial = serial;
++  NSApp.dockTile.badgeLabel = serial;
++  [NSApp.dockTile display];
++}
++
+ - (void)updateIcon {
+   DCHECK_CURRENTLY_ON(BrowserThread::UI);
+   static base::TimeDelta updateFrequency =
+diff --git a/chrome/browser/ui/views/frame/browser_native_widget_mac.mm b/chrome/browser/ui/views/frame/browser_native_widget_mac.mm
+index 7470d31a4fc07..d98feec8eb055 100644
+--- a/chrome/browser/ui/views/frame/browser_native_widget_mac.mm
++++ b/chrome/browser/ui/views/frame/browser_native_widget_mac.mm
+@@ -7,2 +7,4 @@
+ #import "base/apple/foundation_util.h"
++#include <algorithm>
++#include "base/command_line.h"
+ #include "base/memory/raw_ptr.h"
+@@ -9,2 +11,3 @@
+ #include "base/notimplemented.h"
++#include "base/strings/sys_string_conversions.h"
+ #include "chrome/app/chrome_command_ids.h"
+@@ -12,2 +15,3 @@
+ #include "chrome/browser/apps/app_shim/app_shim_host_mac.h"
++#include "chrome/browser/ui/cocoa/dock_icon.h"
+ #include "chrome/browser/apps/app_shim/app_shim_manager_mac.h"
+@@ -465,5 +469,15 @@ BrowserNativeWidgetMac::GetRemoteCocoaApplicationHost() {
+ 
+ void BrowserNativeWidgetMac::OnWindowInitialized() {
++  // Each Prism environment is an independent browser process, so its stable
++  // environment number can safely identify that process in the macOS Dock.
++  const std::string prism_serial =
++      base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
++          "prism-profile-serial");
++  if (!prism_serial.empty() && prism_serial.size() <= 9 &&
++      std::all_of(prism_serial.begin(), prism_serial.end(),
++                  [](char value) { return value >= '0' && value <= '9'; })) {
++    [DockIcon setPrismSerial:base::SysUTF8ToNSString(prism_serial)];
++  }
+   if (auto* bridge = GetInProcessNSWindowBridge()) {
+     bridge->SetCommandDispatcher([[ChromeCommandDispatcherDelegate alloc] init],
+                                  [[BrowserWindowCommandHandler alloc] init]);

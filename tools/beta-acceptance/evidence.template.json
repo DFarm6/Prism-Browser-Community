@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "channel": "beta",
+  "version": "0.2.0-beta.1",
+  "platforms": {
+    "darwin-arm64": {
+      "appE2ePassed": false,
+      "fingerprintNativePassed": false,
+      "fingerprintFixedTemplatePassed": false,
+      "profileDataPassed": false,
+      "proxyIdentityPassed": false,
+      "soakHours": 0,
+      "launches": 0,
+      "crashes": 0,
+      "updateAttempts": 0,
+      "updateSuccesses": 0,
+      "evidenceSha256": "replace-with-64-lowercase-hex"
+    },
+    "win32-x64": {
+      "appE2ePassed": false,
+      "fingerprintNativePassed": false,
+      "fingerprintFixedTemplatePassed": false,
+      "profileDataPassed": false,
+      "proxyIdentityPassed": false,
+      "soakHours": 0,
+      "launches": 0,
+      "crashes": 0,
+      "updateAttempts": 0,
+      "updateSuccesses": 0,
+      "evidenceSha256": "replace-with-64-lowercase-hex"
+    }
+  },
+  "recoveryDrill": {
+    "passed": false,
+    "recoveryVersion": "0.2.0-beta.2",
+    "signedManifestVerified": false,
+    "profileDataPreserved": false
+  },
+  "rolloutGate": {
+    "requestedPhase": "internal",
+    "completedPhase": null,
+    "observedHours": 0,
+    "pauseSignals": []
+  }
+}

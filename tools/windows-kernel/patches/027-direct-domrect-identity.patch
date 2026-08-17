@@ -1,0 +1,32 @@
+--- a/third_party/blink/renderer/core/dom/document.cc
++++ b/third_party/blink/renderer/core/dom/document.cc
+@@ -1112,15 +1112,17 @@
+-  if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled()) {
+-    // Precompute -0.0003% to 0.0003% noise factor for get*ClientRect*()
+-    // fingerprinting.
+-    const base::CommandLine* command_line =
+-        base::CommandLine::ForCurrentProcess();
+-    uint32_t fingerprint = 0;
+-    const bool coherent_render_identity =
+-        command_line->GetSwitchValueASCII(
+-            switches::kFingerprintRenderIdentity) == "v3" &&
+-        base::StringToUint(
+-            command_line->GetSwitchValueASCII(switches::kFingerprint),
+-            &fingerprint);
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  uint32_t fingerprint = 0;
++  const bool coherent_render_identity =
++      command_line->GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) == "v3" &&
++      base::StringToUint(
++          command_line->GetSwitchValueASCII(switches::kFingerprint),
++          &fingerprint);
++  if (coherent_render_identity ||
++      RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled()) {
++    // Precompute -0.0003% to 0.0003% noise factor for get*ClientRect*().
++    // Prism v3 activates the deterministic path directly so the browser does
++    // not need Chromium's unsupported --enable-blink-features warning flag.
+     const double noise_x =
+         coherent_render_identity
+             ? PrismRenderIdentityNoise(fingerprint, 0x9e3779b9u)

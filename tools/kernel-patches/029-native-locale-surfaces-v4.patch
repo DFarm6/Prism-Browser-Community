@@ -1,0 +1,147 @@
+--- a/third_party/blink/renderer/modules/speech/speech_synthesis.cc
++++ b/third_party/blink/renderer/modules/speech/speech_synthesis.cc
+@@ -64,6 +64,11 @@ bool ShouldExposeVoiceForRenderIdentity(const std::string& voice_language) {
+       base::CommandLine::ForCurrentProcess();
+   const std::string render_identity = command_line->GetSwitchValueASCII(
+       switches::kFingerprintRenderIdentity);
++  // v4 keeps the operating system voice inventory intact. Filtering every
++  // voice when the requested locale is not installed is itself observable.
++  if (render_identity == "v4") {
++    return true;
++  }
+   if (render_identity != "v1" && render_identity != "v2" &&
+       render_identity != "v3") {
+     return true;
+--- a/third_party/blink/renderer/platform/fonts/font_cache.cc
++++ b/third_party/blink/renderer/platform/fonts/font_cache.cc
+@@ -247,6 +247,11 @@ static bool IsLocaleSpecificFontHidden(
+     const std::string& requested_family) {
+   const std::string render_identity = command_line.GetSwitchValueASCII(
+       switches::kFingerprintRenderIdentity);
++  // v4 exposes the native Windows/macOS font inventory. A locale-dependent
++  // partial inventory is easier to detect than a stable host font set.
++  if (render_identity == "v4") {
++    return false;
++  }
+   if (render_identity != "v1" && render_identity != "v2" &&
+       render_identity != "v3") {
+     return false;
+--- a/third_party/blink/renderer/core/dom/document.cc
++++ b/third_party/blink/renderer/core/dom/document.cc
+@@ -1112,17 +1112,18 @@ Document::Document(const DocumentInit& initializer,
+   const base::CommandLine* command_line =
+       base::CommandLine::ForCurrentProcess();
+   uint32_t fingerprint = 0;
++  const std::string render_identity = command_line->GetSwitchValueASCII(
++      switches::kFingerprintRenderIdentity);
+   const bool coherent_render_identity =
+-      command_line->GetSwitchValueASCII(
+-          switches::kFingerprintRenderIdentity) == "v3" &&
++      (render_identity == "v3" || render_identity == "v4") &&
+       base::StringToUint(
+           command_line->GetSwitchValueASCII(switches::kFingerprint),
+           &fingerprint);
+   if (coherent_render_identity ||
+       RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled()) {
+     // Precompute -0.0003% to 0.0003% noise factor for get*ClientRect*().
+-    // Prism v3 activates the deterministic path directly so the browser does
+-    // not need Chromium's unsupported --enable-blink-features warning flag.
++    // Prism v3/v4 activates the deterministic path directly so the browser
++    // does not need Chromium's unsupported --enable-blink-features flag.
+     const double noise_x =
+         coherent_render_identity
+             ? PrismRenderIdentityNoise(fingerprint, 0x9e3779b9u)
+--- a/third_party/blink/renderer/modules/webaudio/offline_audio_context.cc
++++ b/third_party/blink/renderer/modules/webaudio/offline_audio_context.cc
+@@ -70,7 +70,8 @@ void ApplyRenderIdentityToAudioBuffer(AudioBuffer* buffer) {
+       base::CommandLine::ForCurrentProcess();
+   const std::string render_identity = command_line->GetSwitchValueASCII(
+       switches::kFingerprintRenderIdentity);
+-  if (render_identity != "v1" && render_identity != "v3") {
++  if (render_identity != "v1" && render_identity != "v3" &&
++      render_identity != "v4") {
+     return;
+   }
+   uint32_t fingerprint = 0;
+--- a/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
++++ b/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
+@@ -206,7 +206,9 @@ void ApplyRenderIdentityToWebGLPixels(void* data,
+       base::CommandLine::ForCurrentProcess();
+   const std::string render_identity = command_line->GetSwitchValueASCII(
+       switches::kFingerprintRenderIdentity);
+-  if (render_identity != "v1" && render_identity != "v3") {
++  const bool coherent_render_identity =
++      render_identity == "v3" || render_identity == "v4";
++  if (render_identity != "v1" && !coherent_render_identity) {
+     return;
+   }
+   uint32_t fingerprint = 0;
+@@ -222,11 +225,11 @@ void ApplyRenderIdentityToWebGLPixels(void* data,
+           ? 11u
+           : 57u;
+   const uint32_t identity_seed =
+-      render_identity == "v3" ? fingerprint : fingerprint % gpu_count;
++      coherent_render_identity ? fingerprint : fingerprint % gpu_count;
+   uint32_t state = identity_seed ^ 0x85ebca6bu ^
+                    static_cast<uint32_t>(width) ^
+                    (static_cast<uint32_t>(height) << 16);
+-  if (render_identity == "v3") {
++  if (coherent_render_identity) {
+     state ^= state >> 16;
+     state *= 0x7feb352du;
+     state ^= state >> 15;
+--- a/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
++++ b/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
+@@ -119,7 +119,8 @@ double PrismCanvasTextOffset(uint32_t salt) {
+   const base::CommandLine* command_line =
+       base::CommandLine::ForCurrentProcess();
+-  if (command_line->GetSwitchValueASCII(
+-          switches::kFingerprintRenderIdentity) != "v3") {
++  const std::string render_identity = command_line->GetSwitchValueASCII(
++      switches::kFingerprintRenderIdentity);
++  if (render_identity != "v3" && render_identity != "v4") {
+     return 0;
+   }
+   uint32_t fingerprint = 0;
+--- a/third_party/blink/renderer/core/html/canvas/text_metrics.cc
++++ b/third_party/blink/renderer/core/html/canvas/text_metrics.cc
+@@ -94,8 +94,9 @@ void TextMetrics::Shuffle(const double factor) {
+ void TextMetrics::Shuffle(const double factor) {
+   const base::CommandLine* command_line =
+       base::CommandLine::ForCurrentProcess();
+-  if (command_line->GetSwitchValueASCII(
+-          switches::kFingerprintRenderIdentity) == "v3") {
++  const std::string render_identity = command_line->GetSwitchValueASCII(
++      switches::kFingerprintRenderIdentity);
++  if (render_identity == "v3" || render_identity == "v4") {
+     return;
+   }
+ 
+--- a/third_party/blink/renderer/platform/graphics/static_bitmap_image.cc
++++ b/third_party/blink/renderer/platform/graphics/static_bitmap_image.cc
+@@ -130,8 +130,9 @@ void StaticBitmapImage::ShuffleSubchannelColorData(const void *addr, const SkIma
+ void StaticBitmapImage::ShuffleSubchannelColorData(const void *addr, const SkImageInfo& info, int srcX, int srcY) {
+   const base::CommandLine* command_line =
+       base::CommandLine::ForCurrentProcess();
+-  if (command_line->GetSwitchValueASCII(
+-          switches::kFingerprintRenderIdentity) == "v3") {
++  const std::string render_identity = command_line->GetSwitchValueASCII(
++      switches::kFingerprintRenderIdentity);
++  if (render_identity == "v3" || render_identity == "v4") {
+     return;
+   }
+ 
+--- a/third_party/blink/renderer/modules/webaudio/offline_audio_destination_node.cc
++++ b/third_party/blink/renderer/modules/webaudio/offline_audio_destination_node.cc
+@@ -65,8 +65,9 @@ OfflineAudioDestinationNode* OfflineAudioDestinationNode::Create(
+     float sample_rate) {
+   const base::CommandLine* command_line =
+       base::CommandLine::ForCurrentProcess();
+-  if (command_line->GetSwitchValueASCII(
+-          switches::kFingerprintRenderIdentity) == "v3") {
++  const std::string render_identity = command_line->GetSwitchValueASCII(
++      switches::kFingerprintRenderIdentity);
++  if (render_identity == "v3" || render_identity == "v4") {
+     const float integral_sample_rate = std::round(sample_rate);
+     if (std::abs(sample_rate - integral_sample_rate) < 0.05f) {
+       sample_rate = integral_sample_rate;

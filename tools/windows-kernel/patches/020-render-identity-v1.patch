@@ -1,0 +1,378 @@
+--- a/components/ungoogled/ungoogled_switches.h
++++ b/components/ungoogled/ungoogled_switches.h
+@@ -16,6 +16,7 @@
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintingCanvasImageDataNoise[];
+ 
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprint[];
++COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintRenderIdentity[];
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintBrand[];
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintBrandVersion[];
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kDisableSpoofing[];
+@@ -24,6 +25,7 @@
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintDeviceScaleFactor[];
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintHardwareConcurrency[];
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintPlatform[];
++COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintLanguage[];
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintPlatformVersion[];
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintLocation[];
+ COMPONENT_EXPORT(UNGOOGLED) extern const char kFingerprintTimezone[];
+--- a/components/ungoogled/ungoogled_switches.cc
++++ b/components/ungoogled/ungoogled_switches.cc
+@@ -18,6 +18,9 @@
+ // Specify the fingerprint seed
+ const char kFingerprint[] = "fingerprint";
+ 
++// Enable the versioned coherent render identity contract
++const char kFingerprintRenderIdentity[] = "fingerprint-render-identity";
++
+ // Specify the browser brand
+ const char kFingerprintBrand[] = "fingerprint-brand";
+ 
+@@ -43,6 +46,9 @@
+ // Specify the operating system type
+ const char kFingerprintPlatform[] = "fingerprint-platform";
+ 
++// Specify the locale used by locale-sensitive fingerprint surfaces
++const char kFingerprintLanguage[] = "fingerprint-language";
++
+ // Specify the operating system version
+ const char kFingerprintPlatformVersion[] = "fingerprint-platform-version";
+ 
+--- a/content/browser/renderer_host/render_process_host_impl.cc
++++ b/content/browser/renderer_host/render_process_host_impl.cc
+@@ -3725,6 +3725,7 @@
+       switches::kFingerprintingCanvasMeasureTextNoise,
+       switches::kFingerprintingCanvasImageDataNoise,
+       switches::kFingerprint,
++      switches::kFingerprintRenderIdentity,
+       switches::kFingerprintBrand,
+       switches::kFingerprintBrandVersion,
+       switches::kDisableSpoofing,
+@@ -3733,6 +3734,7 @@
+       switches::kFingerprintDeviceScaleFactor,
+       switches::kFingerprintHardwareConcurrency,
+       switches::kFingerprintPlatform,
++      switches::kFingerprintLanguage,
+       switches::kFingerprintPlatformVersion,
+       switches::kFingerprintLocation,
+       switches::kFingerprintTimezone,
+--- a/third_party/blink/renderer/modules/speech/speech_synthesis.cc
++++ b/third_party/blink/renderer/modules/speech/speech_synthesis.cc
+@@ -27,7 +27,10 @@
+ 
+ #include <tuple>
+ 
++#include "base/command_line.h"
++#include "base/strings/string_util.h"
+ #include "build/build_config.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "third_party/blink/public/common/thread_safe_browser_interface_broker_proxy.h"
+ #include "third_party/blink/public/platform/browser_interface_broker_proxy.h"
+ #include "third_party/blink/public/platform/platform.h"
+@@ -44,9 +47,34 @@
+ #include "third_party/blink/renderer/modules/speech/speech_synthesis_event.h"
+ #include "third_party/blink/renderer/modules/speech/speech_synthesis_voice.h"
+ #include "third_party/blink/renderer/platform/instrumentation/use_counter.h"
+ 
+ namespace blink {
++
++namespace {
++
++std::string PrimaryLanguage(std::string language) {
++  language = base::ToLowerASCII(language);
++  const size_t separator = language.find_first_of("-_");
++  return separator == std::string::npos ? language
++                                        : language.substr(0, separator);
++}
++
++bool ShouldExposeVoiceForRenderIdentity(const std::string& voice_language) {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  if (command_line->GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) != "v1") {
++    return true;
++  }
++  const std::string expected_language =
++      PrimaryLanguage(command_line->GetSwitchValueASCII(
++          switches::kFingerprintLanguage));
++  return expected_language.empty() ||
++         PrimaryLanguage(voice_language) == expected_language;
++}
+ 
++}  // namespace
++
+ SpeechSynthesisBase* SpeechSynthesis::Create(LocalDOMWindow& window) {
+   return MakeGarbageCollected<SpeechSynthesis>(window);
+ }
+@@ -86,6 +114,9 @@
+     Vector<mojom::blink::SpeechSynthesisVoicePtr> mojom_voices) {
+   voice_list_.clear();
+   for (auto& mojom_voice : mojom_voices) {
++    if (!ShouldExposeVoiceForRenderIdentity(mojom_voice->lang.Utf8())) {
++      continue;
++    }
+     voice_list_.push_back(
+         MakeGarbageCollected<SpeechSynthesisVoice>(std::move(mojom_voice)));
+   }
+--- a/third_party/blink/renderer/platform/fonts/font_cache.cc
++++ b/third_party/blink/renderer/platform/fonts/font_cache.cc
+@@ -29,6 +29,7 @@
+ 
+ #include "third_party/blink/renderer/platform/fonts/font_cache.h"
+ 
++#include <initializer_list>
+ #include <limits>
+ #include <memory>
+ 
+@@ -38,6 +39,7 @@
+ #include "base/notreached.h"
+ #include "base/strings/escape.h"
+ #include "base/strings/string_number_conversions.h"
++#include "base/strings/string_util.h"
+ #include "base/system/sys_info.h"
+ #include "base/timer/elapsed_timer.h"
+ #include "base/trace_event/process_memory_dump.h"
+@@ -239,7 +241,55 @@
+ 
+   return basic_fonts.count(font_family) > 0;
+ }
++
++static bool IsLocaleSpecificFontHidden(
++    const base::CommandLine& command_line,
++    const std::string& requested_family) {
++  if (command_line.GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) != "v1") {
++    return false;
++  }
++
++  std::string language =
++      base::ToLowerASCII(command_line.GetSwitchValueASCII(
++          switches::kFingerprintLanguage));
++  const size_t separator = language.find_first_of("-_");
++  if (separator != std::string::npos) {
++    language.resize(separator);
++  }
++  const std::string family = base::ToLowerASCII(requested_family);
++  const auto contains_any = [&family](
++                                std::initializer_list<const char*> values) {
++    for (const char* value : values) {
++      if (family.find(value) != std::string::npos) {
++        return true;
++      }
++    }
++    return false;
++  };
+ 
++  const bool chinese = contains_any({
++      "microsoft yahei", "microsoft jhenghei", "simsun", "mingliu",
++      "pingfang", "heiti", "kaiti", "songti"});
++  const bool japanese = contains_any({
++      "yu gothic", "yugothic", "yu mincho", "yumincho", "ms gothic",
++      "meiryo", "hiragino", "osaka"});
++  const bool korean = contains_any({
++      "malgun gothic", "apple sd gothic neo", "nanum"});
++
++  if (language == "zh") {
++    return japanese || korean;
++  }
++  if (language == "ja") {
++    return chinese || korean;
++  }
++  if (language == "ko") {
++    return chinese || japanese;
++  }
++  return chinese || japanese || korean;
++}
++
++
+ const FontPlatformData* FontCache::GetFontPlatformData(
+     const FontDescription& font_description,
+     const FontFaceCreationParams& creation_params,
+@@ -259,6 +309,13 @@
+ #endif
+ 
+   const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
++  if (creation_params.CreationType() == kCreateFontByFamily &&
++      alternate_font_name != AlternateFontName::kLastResort &&
++      IsLocaleSpecificFontHidden(
++          *command_line, creation_params.Family().Utf8())) {
++    return nullptr;
++  }
++
+   // 字体指纹处理逻辑 - 不应用于最后手段字体
+   if (command_line->HasSwitch(switches::kFingerprint) &&
+       (!command_line->HasSwitch(switches::kDisableSpoofing) ||
+--- a/third_party/blink/renderer/modules/webaudio/offline_audio_context.cc
++++ b/third_party/blink/renderer/modules/webaudio/offline_audio_context.cc
+@@ -25,6 +25,12 @@
+ 
+ #include "third_party/blink/renderer/modules/webaudio/offline_audio_context.h"
+ 
++#include <algorithm>
++#include <cmath>
++
++#include "base/command_line.h"
++#include "base/strings/string_number_conversions.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "base/metrics/histogram_functions.h"
+ #include "base/metrics/histogram_macros.h"
+ #include "media/base/audio_glitch_info.h"
+@@ -49,7 +55,55 @@
+ #include "third_party/blink/renderer/platform/wtf/text/strcat.h"
+ 
+ namespace blink {
++
++namespace {
++
++uint32_t NextRenderIdentityState(uint32_t state) {
++  state ^= state << 13;
++  state ^= state >> 17;
++  state ^= state << 5;
++  return state;
++}
++
++void ApplyRenderIdentityToAudioBuffer(AudioBuffer* buffer) {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  if (command_line->GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) != "v1") {
++    return;
++  }
++  uint32_t fingerprint = 0;
++  if (!base::StringToUint(
++          command_line->GetSwitchValueASCII(switches::kFingerprint),
++          &fingerprint)) {
++    return;
++  }
+ 
++  for (unsigned channel = 0; channel < buffer->numberOfChannels(); ++channel) {
++    NotShared<DOMFloat32Array> channel_data = buffer->getChannelData(channel);
++    if (!channel_data || channel_data->length() == 0) {
++      continue;
++    }
++    uint32_t state = fingerprint ^ (0x9e3779b9u * (channel + 1)) ^
++                     channel_data->length();
++    const uint32_t stride = 89u + (state % 29u);
++    for (uint32_t index = 23u + (state % 53u);
++         index < channel_data->length(); index += stride) {
++      state = NextRenderIdentityState(state);
++      float& sample = channel_data->Data()[index];
++      if (!std::isfinite(sample) || std::abs(sample) < 1.0e-8f) {
++        continue;
++      }
++      const float magnitude =
++          static_cast<float>(1u + ((state >> 1) % 3u)) * 1.0e-7f;
++      const float delta = (state & 1u) ? magnitude : -magnitude;
++      sample = std::clamp(sample + delta, -1.0f, 1.0f);
++    }
++  }
++}
++
++}  // namespace
++
+ OfflineAudioContext* OfflineAudioContext::Create(
+     ExecutionContext* context,
+     unsigned number_of_channels,
+@@ -395,6 +449,8 @@
+     if (!rendered_buffer) {
+       return;
+     }
++
++    ApplyRenderIdentityToAudioBuffer(rendered_buffer);
+ 
+     // Call the offline rendering completion event listener and resolve the
+     // promise too.
+--- a/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
++++ b/third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc
+@@ -29,6 +29,7 @@
+ #include <utility>
+ 
+ #include "base/bit_cast.h"
++#include "base/command_line.h"
+ #include "base/compiler_specific.h"
+ #include "base/containers/contains.h"
+ #include "base/feature_list.h"
+@@ -39,8 +40,10 @@
+ #include "base/numerics/checked_math.h"
+ #include "base/synchronization/lock.h"
+ #include "base/task/single_thread_task_runner.h"
++#include "base/strings/string_number_conversions.h"
+ #include "base/trace_event/trace_event.h"
+ #include "build/build_config.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "device/vr/buildflags/buildflags.h"
+ #include "device/vr/public/mojom/vr_service.mojom-blink-forward.h"
+ #include "gpu/GLES2/gl2extchromium.h"
+@@ -180,6 +183,63 @@
+   GetCurrentUnpackState(params)
+ 
+ namespace blink {
++
++namespace {
++
++uint32_t NextWebGLRenderIdentityState(uint32_t state) {
++  state ^= state << 13;
++  state ^= state >> 17;
++  state ^= state << 5;
++  return state;
++}
++
++void ApplyRenderIdentityToWebGLPixels(void* data,
++                                      GLsizei width,
++                                      GLsizei height,
++                                      GLenum format,
++                                      GLenum type) {
++  if (!data || width <= 0 || height <= 0 || type != GL_UNSIGNED_BYTE ||
++      (format != GL_RGB && format != GL_RGBA)) {
++    return;
++  }
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  if (command_line->GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) != "v1") {
++    return;
++  }
++  uint32_t fingerprint = 0;
++  if (!base::StringToUint(
++          command_line->GetSwitchValueASCII(switches::kFingerprint),
++          &fingerprint)) {
++    return;
++  }
++
++  const uint32_t gpu_count =
++      command_line->GetSwitchValueASCII(switches::kFingerprintPlatform) ==
++              "macos"
++          ? 11u
++          : 57u;
++  uint32_t state = (fingerprint % gpu_count) ^ 0x85ebca6bu ^
++                   static_cast<uint32_t>(width) ^
++                   (static_cast<uint32_t>(height) << 16);
++  const size_t channels = format == GL_RGBA ? 4u : 3u;
++  const size_t byte_count =
++      static_cast<size_t>(width) * static_cast<size_t>(height) * channels;
++  uint8_t* bytes = static_cast<uint8_t*>(data);
++  const size_t stride = 193u + (state % 67u);
++  for (size_t index = state % stride; index < byte_count; index += stride) {
++    state = NextWebGLRenderIdentityState(state);
++    const size_t channel = index % channels;
++    if (channel == 3u) {
++      continue;
++    }
++    bytes[index] = static_cast<uint8_t>(
++        (bytes[index] & 0xfeu) | ((state >> channel) & 1u));
++  }
++}
++
++}  // namespace
+ 
+ bool WebGLRenderingContextBase::webgl_context_limits_initialized_ = false;
+ unsigned WebGLRenderingContextBase::max_active_webgl_contexts_ = 0;
+@@ -5143,6 +5203,8 @@
+       return;
+     }
+     ContextGL()->ReadPixels(x, y, width, height, format, type, data);
++    ApplyRenderIdentityToWebGLPixels(data, width, height, format, type);
++
+   }
+ }
+ 

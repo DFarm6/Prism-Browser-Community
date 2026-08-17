@@ -1,0 +1,48 @@
+--- a/third_party/blink/renderer/core/dom/element.cc
++++ b/third_party/blink/renderer/core/dom/element.cc
+@@ -3257,7 +3257,9 @@
+   }
+   Vector<gfx::RectF> result;
+   for (auto& quad : quads) {
+-    if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled()) {
++    if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled() ||
++        GetDocument().GetNoiseFactorX() != 1.0 ||
++        GetDocument().GetNoiseFactorY() != 1.0) {
+       quad.Scale(GetDocument().GetNoiseFactorX(), GetDocument().GetNoiseFactorY());
+     }
+     result.emplace_back(quad.BoundingBox());
+@@ -3289,8 +3291,10 @@
+   LayoutObject* element_layout_object = GetLayoutObject();
+   DCHECK(element_layout_object);
+   GetDocument().AdjustRectForScrollAndAbsoluteZoom(result,
+                                                    *element_layout_object);
+-  if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled()) {
++  if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled() ||
++      GetDocument().GetNoiseFactorX() != 1.0 ||
++      GetDocument().GetNoiseFactorY() != 1.0) {
+     result.Scale(GetDocument().GetNoiseFactorX(), GetDocument().GetNoiseFactorY());
+   }
+   return result;
+--- a/third_party/blink/renderer/core/dom/range.cc
++++ b/third_party/blink/renderer/core/dom/range.cc
+@@ -1654,7 +1654,9 @@
+   Vector<gfx::QuadF> quads;
+   GetBorderAndTextQuads(quads);
+ 
+-  if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled()) {
++  if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled() ||
++      owner_document_->GetNoiseFactorX() != 1.0 ||
++      owner_document_->GetNoiseFactorY() != 1.0) {
+     for (gfx::QuadF& quad : quads) {
+       quad.Scale(owner_document_->GetNoiseFactorX(),
+                  owner_document_->GetNoiseFactorY());
+@@ -1669,6 +1671,8 @@
+   SyncScrollAttemptHeuristic::DidAccessScrollOffset();
+   auto rect = BoundingRect();
+-  if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled()) {
++  if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled() ||
++      owner_document_->GetNoiseFactorX() != 1.0 ||
++      owner_document_->GetNoiseFactorY() != 1.0) {
+     rect.Scale(owner_document_->GetNoiseFactorX(),
+                owner_document_->GetNoiseFactorY());
+   }

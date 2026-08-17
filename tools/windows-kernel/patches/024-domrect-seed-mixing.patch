@@ -1,0 +1,21 @@
+--- a/third_party/blink/renderer/core/dom/document.cc
++++ b/third_party/blink/renderer/core/dom/document.cc
+@@ -418,10 +418,14 @@
+ 
+ double PrismRenderIdentityNoise(uint32_t fingerprint, uint32_t salt) {
+   uint32_t state = fingerprint ^ salt;
+-  state ^= state << 13;
+-  state ^= state >> 17;
+-  state ^= state << 5;
+-  return static_cast<double>(state & 0xffffu) / 65535.0;
++  state ^= state >> 16;
++  state *= 0x7feb352du;
++  state ^= state >> 15;
++  state *= 0x846ca68bu;
++  state ^= state >> 16;
++  constexpr uint32_t kNoiseMask = 0xffffu;
++  return static_cast<double>(state & kNoiseMask) /
++         static_cast<double>(kNoiseMask);
+ }
+ 
+ class IntrinsicSizeResizeObserverDelegate : public ResizeObserver::Delegate {

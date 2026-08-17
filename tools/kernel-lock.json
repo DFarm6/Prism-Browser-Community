@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 1,
+  "chromiumVersion": "144.0.7559.132",
+  "fingerprint": {
+    "repository": "https://github.com/adryfish/fingerprint-chromium.git",
+    "tag": "144.0.7559.132",
+    "commit": "831623f2965e34554304caabfc3a1e4e3741db1f"
+  },
+  "platforms": {
+    "macos-arm64": {
+      "repository": "https://github.com/ungoogled-software/ungoogled-chromium-macos.git",
+      "tag": "144.0.7559.96",
+      "commit": "6bbb0dbdeae887af207c75c9e5173cceddbd381b",
+      "artifactTarget": "macos-arm64",
+      "buildTargets": [
+        "chrome",
+        "chromedriver"
+      ]
+    },
+    "windows-x64": {
+      "repository": "https://github.com/ungoogled-software/ungoogled-chromium-windows.git",
+      "tag": "144.0.7559.132-1.1",
+      "commit": "469861bcfd3f4c871986437502b05f3076cad15e",
+      "artifactTarget": "windows-x64",
+      "buildTargets": [
+        "chrome",
+        "chromedriver",
+        "mini_installer"
+      ]
+    }
+  },
+  "patches": [
+    {
+      "id": "screen-size",
+      "seriesPath": "extra/fingerprint/004-screen-size.patch",
+      "file": "004-screen-size.patch",
+      "sha256": "0e1a76b7dd594d00a5c600a48104e844b945a6cf77be6941294b8a35a3ca67ce",
+      "appliedMarkers": [
+        "third_party/blink/renderer/core/frame/screen.cc::has_fingerprint_size"
+      ]
+    },
+    {
+      "id": "screen-consistency",
+      "seriesPath": "extra/fingerprint/005-screen-consistency.patch",
+      "file": "005-screen-consistency.patch",
+      "sha256": "3000c0a3af239c24e578923765ce0263f0bd732c91574b8643372124d3a35d7b",
+      "appliedMarkers": [
+        "third_party/blink/renderer/core/frame/screen.cc::fingerprint_height - 48",
+        "third_party/blink/renderer/core/css/media_values.cc::FingerprintScreenDimension"
+      ]
+    },
+    {
+      "id": "proxy-geolocation",
+      "seriesPath": "extra/fingerprint/019-proxy-geolocation.patch",
+      "file": "019-proxy-geolocation.patch",
+      "sha256": "60c8c03ce5e2635f9d9e874303266a1046078758188284f1472e3ee74f0494e2",
+      "appliedMarkers": [
+        "third_party/blink/renderer/core/geolocation/geolocation.cc::GetFingerprintLocation"
+      ]
+    },
+    {
+      "id": "render-identity-v1",
+      "seriesPath": "extra/fingerprint/020-render-identity-v1.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/018-timezone.patch",
+      "file": "020-render-identity-v1.patch",
+      "sha256": "35347a3cc6ed4d378011ef5acd3507ce34f39ef5a215c6de283d6992fff1732e",
+      "appliedMarkers": [
+        "components/ungoogled/ungoogled_switches.cc::fingerprint-render-identity",
+        "components/ungoogled/ungoogled_switches.cc::fingerprint-language",
+        "content/browser/renderer_host/render_process_host_impl.cc::kFingerprintRenderIdentity",
+        "third_party/blink/renderer/modules/speech/speech_synthesis.cc::ShouldExposeVoiceForRenderIdentity",
+        "third_party/blink/renderer/platform/fonts/font_cache.cc::IsLocaleSpecificFontHidden",
+        "third_party/blink/renderer/modules/webaudio/offline_audio_context.cc::ApplyRenderIdentityToAudioBuffer",
+        "third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc::ApplyRenderIdentityToWebGLPixels"
+      ]
+    },
+    {
+      "id": "conservative-render-identity-v2",
+      "seriesPath": "extra/fingerprint/021-conservative-render-identity-v2.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/020-render-identity-v1.patch",
+      "file": "021-conservative-render-identity-v2.patch",
+      "sha256": "f38fd819a4a663d9227922716c972a8c0465fb148c804c5756fcba5d3cd4a9eb",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/speech/speech_synthesis.cc::render_identity != \"v1\" && render_identity != \"v2\"",
+        "third_party/blink/renderer/platform/fonts/font_cache.cc::render_identity != \"v1\" && render_identity != \"v2\""
+      ]
+    },
+    {
+      "id": "profile-window-identity",
+      "seriesPath": "extra/fingerprint/022-profile-window-identity.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/021-conservative-render-identity-v2.patch",
+      "file": "022-profile-window-identity.patch",
+      "sha256": "6c80593aa00ebc1583ecb098fbfae0f0b8c8596425e820a6377a596befb79e9e",
+      "appliedMarkers": [
+        "chrome/browser/ui/views/frame/browser_view.cc::prism-profile-serial",
+        "chrome/browser/ui/views/frame/browser_window_property_manager_win.cc::com.prismbrowser.profile.",
+        "chrome/browser/ui/views/toolbar/toolbar_view.cc::Prism profile identity: mirror",
+        "chrome/browser/ui/cocoa/dock_icon.mm::drawPrismSerialBadge",
+        "chrome/browser/ui/views/frame/browser_native_widget_mac.mm::DockIcon setPrismSerial"
+      ]
+    },
+    {
+      "id": "coherent-render-identity-v3",
+      "seriesPath": "extra/fingerprint/023-coherent-render-identity-v3.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/022-profile-window-identity.patch",
+      "file": "023-coherent-render-identity-v3.patch",
+      "sha256": "9584f752897fde917bb3810e1a5db7a326f8bacfb570d9c86ed7e8883d95b72d",
+      "appliedMarkers": [
+        "third_party/blink/renderer/core/dom/document.cc::PrismRenderIdentityNoise",
+        "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc::PrismCanvasTextOffset",
+        "third_party/blink/renderer/modules/speech/speech_synthesis.cc::render_identity != \"v3\"",
+        "third_party/blink/renderer/platform/fonts/font_cache.cc::render_identity != \"v3\"",
+        "third_party/blink/renderer/modules/webaudio/offline_audio_context.cc::render_identity != \"v1\" && render_identity != \"v3\"",
+        "third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc::ApplyRenderIdentityToWebGLPixels"
+      ]
+    },
+    {
+      "id": "domrect-seed-mixing",
+      "seriesPath": "extra/fingerprint/024-domrect-seed-mixing.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/023-coherent-render-identity-v3.patch",
+      "file": "024-domrect-seed-mixing.patch",
+      "sha256": "3b6f182e271e4472e25ceced7ae5b5de34713a005042c6ce4068de5aad00a1ec",
+      "appliedMarkers": [
+        "third_party/blink/renderer/core/dom/document.cc::kNoiseMask = 0xffffu",
+        "third_party/blink/renderer/core/dom/document.cc::state *= 0x7feb352du",
+        "third_party/blink/renderer/core/dom/document.cc::state *= 0x846ca68bu"
+      ]
+    },
+    {
+      "id": "native-surface-consistency",
+      "seriesPath": "extra/fingerprint/025-native-surface-consistency.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/024-domrect-seed-mixing.patch",
+      "file": "025-native-surface-consistency.patch",
+      "sha256": "8f5ac446ec1914f8e1c9881a179b3fdd6e8b114c399e4f5a530db08fd65ae573",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc::state *= 0x846ca68bu",
+        "third_party/blink/renderer/core/html/canvas/text_metrics.cc::render_identity == \"v3\" || render_identity == \"v4\"",
+        "third_party/blink/renderer/platform/graphics/static_bitmap_image.cc::render_identity == \"v3\" || render_identity == \"v4\"",
+        "third_party/blink/renderer/modules/webaudio/offline_audio_destination_node.cc::integral_sample_rate",
+        "third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc::identity_seed"
+      ]
+    },
+    {
+      "id": "canvas-seed-dispersion",
+      "seriesPath": "extra/fingerprint/026-canvas-seed-dispersion.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/025-native-surface-consistency.patch",
+      "file": "026-canvas-seed-dispersion.patch",
+      "sha256": "fcd7b2cec9b19bdfb91bef474849e119e303a2190f8ecec66d8aa754e29f97a4",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc::kCanvasOffsetMask = 0x0fu",
+        "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc::PrismCanvasTextOffset(0x27d4eb2du)",
+        "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc::PrismCanvasTextOffset(0x165667b1u)"
+      ],
+      "supersededByPatchIds": [
+        "canvas-seed-slot-dispersion"
+      ]
+    },
+    {
+      "id": "direct-domrect-identity",
+      "seriesPath": "extra/fingerprint/027-direct-domrect-identity.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/026-canvas-seed-dispersion.patch",
+      "file": "027-direct-domrect-identity.patch",
+      "sha256": "22d0a9cea2a342b81f9b9ee0674ad19ef062e768c13c83e5195d8c1ac9d852c9",
+      "appliedMarkers": [
+        "third_party/blink/renderer/core/dom/document.cc::coherent_render_identity ||",
+        "third_party/blink/renderer/core/dom/document.cc::not need Chromium's unsupported --enable-blink-features flag"
+      ]
+    },
+    {
+      "id": "direct-domrect-consumption",
+      "seriesPath": "extra/fingerprint/028-direct-domrect-consumption.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/027-direct-domrect-identity.patch",
+      "file": "028-direct-domrect-consumption.patch",
+      "sha256": "24d8e1693f303ac43713b2ff45c1c0d333f1f1dc41d2322f92cbbb74a8287a2e",
+      "appliedMarkers": [
+        "third_party/blink/renderer/core/dom/element.cc::GetDocument().GetNoiseFactorX() != 1.0",
+        "third_party/blink/renderer/core/dom/element.cc::GetDocument().GetNoiseFactorY() != 1.0",
+        "third_party/blink/renderer/core/dom/range.cc::owner_document_->GetNoiseFactorX() != 1.0",
+        "third_party/blink/renderer/core/dom/range.cc::owner_document_->GetNoiseFactorY() != 1.0"
+      ]
+    },
+    {
+      "id": "native-locale-surfaces-v4",
+      "seriesPath": "extra/fingerprint/029-native-locale-surfaces-v4.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/028-direct-domrect-consumption.patch",
+      "file": "029-native-locale-surfaces-v4.patch",
+      "sha256": "a75373500295deef89d5eebe4947261092878fc07fd92b2cea4358a82a2e2138",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/speech/speech_synthesis.cc::ShouldExposeVoiceForRenderIdentity",
+        "third_party/blink/renderer/platform/fonts/font_cache.cc::render_identity == \"v4\"",
+        "third_party/blink/renderer/core/dom/document.cc::render_identity == \"v3\" || render_identity == \"v4\"",
+        "third_party/blink/renderer/modules/webaudio/offline_audio_context.cc::render_identity != \"v4\"",
+        "third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc::coherent_render_identity",
+        "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc::render_identity != \"v3\" && render_identity != \"v4\"",
+        "third_party/blink/renderer/core/html/canvas/text_metrics.cc::render_identity == \"v3\" || render_identity == \"v4\"",
+        "third_party/blink/renderer/platform/graphics/static_bitmap_image.cc::render_identity == \"v3\" || render_identity == \"v4\"",
+        "third_party/blink/renderer/modules/webaudio/offline_audio_destination_node.cc::render_identity == \"v3\" || render_identity == \"v4\""
+      ]
+    },
+    {
+      "id": "windows-native-tts-voices",
+      "seriesPath": "extra/fingerprint/030-windows-native-tts-voices.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/029-native-locale-surfaces-v4.patch",
+      "file": "030-windows-native-tts-voices.patch",
+      "sha256": "ccd8255f9273d14b30e447ced900db9743dbaa7ab26197e0eb4b6aa26ea772f4",
+      "appliedMarkers": [
+        "content/browser/speech/tts_win.cc::that as success hides every installed desktop SAPI voice",
+        "content/browser/speech/tts_win.cc::voice_count > 0",
+        "content/browser/speech/tts_win.cc::out_tokens->Reset()"
+      ]
+    },
+    {
+      "id": "windows-tts-runtime",
+      "seriesPath": "extra/fingerprint/031-windows-tts-runtime.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/030-windows-native-tts-voices.patch",
+      "file": "031-windows-tts-runtime.patch",
+      "sha256": "ffff53558417633112f82d46674d72e52067daea0bdb3e82f8ce3f260890b639",
+      "appliedMarkers": [
+        "content/browser/speech/tts_win.cc::StartPrismTtsWorkerThread",
+        "content/browser/speech/tts_win.cc::PrismSpEnumTokens",
+        "content/browser/speech/tts_win.cc::speech_synthesizer_->GetVoice",
+        "content/browser/speech/tts_win.cc::[PrismTTS]",
+        "content/browser/speech/tts_win.cc::PrismTtsMtaWorker"
+      ]
+    },
+    {
+      "id": "webgpu-template-identity",
+      "seriesPath": "extra/fingerprint/032-webgpu-template-identity.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/031-windows-tts-runtime.patch",
+      "file": "032-webgpu-template-identity.patch",
+      "sha256": "9b8941d74aaf90bb52bf8f1df08ed4139f167ea432fb030f2114d11a7a4220a8",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/webgpu/gpu_adapter.cc::ApplyPrismWebGpuTemplateIdentity",
+        "third_party/blink/renderer/modules/webgpu/gpu_adapter.cc::PrismWindowsWebGpuArchitecture",
+        "third_party/blink/renderer/modules/webgpu/gpu_adapter.cc::blackwell"
+      ]
+    },
+    {
+      "id": "webgl-snapshot-speech-coherence",
+      "seriesPath": "extra/fingerprint/033-webgl-snapshot-speech-coherence.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/032-webgpu-template-identity.patch",
+      "file": "033-webgl-snapshot-speech-coherence.patch",
+      "sha256": "a4cf23830f6143e0c1a935175a759f939a5b3677654b6324e35865e93e479c4a",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc::ApplyRenderIdentityToWebGLSnapshot",
+        "third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc::top_left_rows",
+        "third_party/blink/renderer/modules/speech/speech_synthesis.cc::render_identity != \"v3\" && render_identity != \"v4\""
+      ]
+    },
+    {
+      "id": "canvas-serialization-identity",
+      "seriesPath": "extra/fingerprint/034-canvas-serialization-identity.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/033-webgl-snapshot-speech-coherence.patch",
+      "file": "034-canvas-serialization-identity.patch",
+      "sha256": "e29655becc7b35cb1b6c065d23a6a6caeb1110f5563390c4b7d6e72bb3a618fb",
+      "appliedMarkers": [
+        "third_party/blink/renderer/platform/graphics/image_data_buffer.cc::ApplyPrismCanvasSerializationIdentity",
+        "third_party/blink/renderer/core/html/canvas/html_canvas_element.cc::data_buffer->ApplyPrismCanvasSerializationIdentity()"
+      ],
+      "supersededByPatchIds": [
+        "canvas-seed-slot-dispersion"
+      ]
+    },
+    {
+      "id": "locale-speech-catalog",
+      "seriesPath": "extra/fingerprint/035-locale-speech-catalog.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/034-canvas-serialization-identity.patch",
+      "file": "035-locale-speech-catalog.patch",
+      "sha256": "3767c0dc573ecda7d8ef27d7d9af5b25791649698d963f23c4449352903634d4",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/speech/speech_synthesis.cc::UsesPrismLocaleVoiceCatalog",
+        "third_party/blink/renderer/modules/speech/speech_synthesis.cc::Microsoft Haruka",
+        "third_party/blink/renderer/modules/speech/speech_synthesis_voice.h::platformName()",
+        "third_party/blink/renderer/modules/speech/speech_synthesis_utterance.cc::voice_->platformName()"
+      ]
+    },
+    {
+      "id": "coherent-canvas-readback",
+      "seriesPath": "extra/fingerprint/036-coherent-canvas-readback.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/035-locale-speech-catalog.patch",
+      "file": "036-coherent-canvas-readback.patch",
+      "sha256": "718a8ba121d895209401903c5fc97bbbe87f0754b8affb97afc0afbc032ab554",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc::kCanvasOffsetMask = 0x3fu"
+      ],
+      "supersededByPatchIds": [
+        "canvas-seed-slot-dispersion"
+      ]
+    },
+    {
+      "id": "canvas-seed-slot-dispersion",
+      "seriesPath": "extra/fingerprint/037-canvas-seed-slot-dispersion.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/036-coherent-canvas-readback.patch",
+      "file": "037-canvas-seed-slot-dispersion.patch",
+      "sha256": "0f4e4042448d67c455657cae4c2cb4e5239bb3d5823ffb30b6716c7624c1a79d",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc::kCanvasOffsetBits = 6u",
+        "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc::state >> (32u - kCanvasOffsetBits)"
+      ]
+    },
+    {
+      "id": "webgl-calibration-authenticity",
+      "seriesPath": "extra/fingerprint/038-webgl-calibration-authenticity.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/037-canvas-seed-slot-dispersion.patch",
+      "file": "038-webgl-calibration-authenticity.patch",
+      "sha256": "bf723e62e8942e20d30e2bdb4b090f18e728d58cbda8f83f58ea7db160a0050b",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc::IsPrismWebGLCalibrationSurface",
+        "third_party/blink/renderer/modules/webgl/webgl_rendering_context_base.cc::found_visible_pixel"
+      ]
+    },
+    {
+      "id": "native-font-inventory-authenticity",
+      "seriesPath": "extra/fingerprint/039-native-font-inventory-authenticity.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/038-webgl-calibration-authenticity.patch",
+      "file": "039-native-font-inventory-authenticity.patch",
+      "sha256": "cd9c1dbf98d108e19215feaa880e656a80960cd47c0538557b04801ee17a7b52",
+      "appliedMarkers": [
+        "third_party/blink/renderer/platform/fonts/font_cache.cc::native OS inventory intact",
+        "third_party/blink/renderer/platform/fonts/font_cache.cc::kFingerprintRenderIdentity) != \"v4\""
+      ]
+    },
+    {
+      "id": "domrect-calibration-authenticity",
+      "seriesPath": "extra/fingerprint/040-domrect-calibration-authenticity.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/039-native-font-inventory-authenticity.patch",
+      "file": "040-domrect-calibration-authenticity.patch",
+      "sha256": "f953f04bfb5025d1cfbee52013fd838bd924757347274099887d735405ad769f",
+      "appliedMarkers": [
+        "third_party/blink/renderer/core/dom/element.cc::has_transformed_geometry",
+        "third_party/blink/renderer/core/dom/range.cc::quad.IsRectilinear()"
+      ]
+    },
+    {
+      "id": "macos-intl-locale",
+      "seriesPath": "extra/fingerprint/041-macos-intl-locale.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/040-domrect-calibration-authenticity.patch",
+      "file": "041-macos-intl-locale.patch",
+      "sha256": "ca0a6786b4f2221ae8debd273ea296acd42030a7812d9180b31b2cbd44bfab2c",
+      "appliedMarkers": [
+        "content/renderer/renderer_main.cc::SetICUDefaultLocale(fingerprint_locale)",
+        "content/renderer/renderer_main.cc::kFingerprintLanguage"
+      ]
+    },
+    {
+      "id": "native-canvas-audio-calibration",
+      "seriesPath": "extra/fingerprint/042-native-canvas-audio-calibration.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/041-macos-intl-locale.patch",
+      "file": "042-native-canvas-audio-calibration.patch",
+      "sha256": "98fbbee5a3d2e27d847c29590ef076f74d7a45648eb34c61418bca80c322e1ac",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc::NormalizePrismCanvasLowEntropyCalibration",
+        "third_party/blink/renderer/modules/webaudio/offline_audio_context.cc::permutation_length"
+      ]
+    },
+    {
+      "id": "audio-noise-trap-authenticity",
+      "seriesPath": "extra/fingerprint/043-audio-noise-trap-authenticity.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/042-native-canvas-audio-calibration.patch",
+      "file": "043-audio-noise-trap-authenticity.patch",
+      "sha256": "d1c7dd152a7bdbac3a73449b2827ef2e91cb2a03f5e13e907cc38979902854e4",
+      "appliedMarkers": [
+        "third_party/blink/renderer/modules/webaudio/offline_audio_context.cc::permutation_begin",
+        "third_party/blink/renderer/modules/webaudio/offline_audio_context.cc::AudioBuffer noise trap"
+      ]
+    },
+    {
+      "id": "windows-taskbar-badge-readiness",
+      "seriesPath": "extra/fingerprint/044-windows-taskbar-badge-readiness.patch",
+      "insertAfterSeriesPath": "extra/fingerprint/043-audio-noise-trap-authenticity.patch",
+      "file": "044-windows-taskbar-badge-readiness.patch",
+      "sha256": "1c71962e99ad0eef53eba5154da4cb9fa67d41abe94c22d901a62576e22294cd",
+      "appliedMarkers": [
+        "chrome/browser/ui/views/frame/browser_window_property_manager_win.cc::SchedulePrismProfileOverlay",
+        "chrome/browser/ui/views/frame/browser_window_property_manager_win.cc::base::Milliseconds(1200)"
+      ]
+    }
+  ],
+  "acceptance": {
+    "fingerprintAuditSchemaVersion": 14,
+    "requiredAuditModes": [
+      "native",
+      "fixed-template"
+    ]
+  }
+}

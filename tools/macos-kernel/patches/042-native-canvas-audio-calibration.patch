@@ -1,0 +1,107 @@
+--- a/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
++++ b/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
+@@ -142,4 +142,48 @@
+          static_cast<double>(kCanvasOffsetScale);
+ }
+ 
++bool NormalizePrismCanvasLowEntropyCalibration(SkPixmap& pixmap) {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  if (command_line->GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) != "v4" ||
++      pixmap.width() != 2 || pixmap.height() != 2 ||
++      (pixmap.colorType() != kRGBA_8888_SkColorType &&
++       pixmap.colorType() != kBGRA_8888_SkColorType)) {
++    return false;
++  }
++
++  // This native 2x2 opaque grayscale arc is deliberately low entropy and is
++  // used to classify the rasterizer, not the profile. Canonicalize only that
++  // exact surface so normal canvas readbacks retain their seeded identity.
++  uint8_t* rows = static_cast<uint8_t*>(pixmap.writable_addr());
++  for (int y = 0; y < 2; ++y) {
++    uint8_t* row = rows + y * pixmap.rowBytes();
++    for (int x = 0; x < 2; ++x) {
++      const uint8_t* pixel = row + x * 4;
++      if (pixel[3] != 255 || pixel[0] != pixel[1] ||
++          pixel[1] != pixel[2]) {
++        return false;
++      }
++    }
++  }
++  if (rows[0] != 255 || rows[1] != 255 || rows[2] != 255) {
++    return false;
++  }
++
++  constexpr uint8_t kNativeBlinkGray[4] = {255, 192, 240, 48};
++  for (int y = 0; y < 2; ++y) {
++    uint8_t* row = rows + y * pixmap.rowBytes();
++    for (int x = 0; x < 2; ++x) {
++      uint8_t* pixel = row + x * 4;
++      const uint8_t gray = kNativeBlinkGray[y * 2 + x];
++      pixel[0] = gray;
++      pixel[1] = gray;
++      pixel[2] = gray;
++      pixel[3] = 255;
++    }
++  }
++  return true;
++}
++
+ wgpu::TextureFormat AsDawnType(const viz::SharedImageFormat& format) {
+@@ -557,7 +601,10 @@
+       DCHECK(!bounds.intersect(SkIRect::MakeXYWH(sx, sy, sw, sh)));
+     }
+ 
+-    if (read_pixels_successful &&
++    const bool normalized_low_entropy_calibration =
++        read_pixels_successful &&
++        NormalizePrismCanvasLowEntropyCalibration(image_data_pixmap);
++    if (read_pixels_successful && !normalized_low_entropy_calibration &&
+         RuntimeEnabledFeatures::FingerprintingCanvasImageDataNoiseEnabled()) {
+       StaticBitmapImage::ShuffleSubchannelColorData(image_data_pixmap.addr(), image_data_pixmap.info(), sx, sy);
+     }
+--- a/third_party/blink/renderer/modules/webaudio/offline_audio_context.cc
++++ b/third_party/blink/renderer/modules/webaudio/offline_audio_context.cc
+@@ -88,6 +88,41 @@
+     }
+     uint32_t state = fingerprint ^ (0x9e3779b9u * (channel + 1)) ^
+                      channel_data->length();
++    if (render_identity == "v4") {
++      // Preserve native amplitude statistics exactly. Public authenticity
++      // checks correlate the final 500 samples with the compressor/analyser
++      // output, so changing sample values creates an impossible combination.
++      // Reordering existing values before that native calibration window keeps
++      // the multiset, sum and extrema intact while retaining a stable,
++      // profile-specific sequence identity.
++      const uint32_t permutation_length =
++          std::min<uint32_t>(channel_data->length(), 4096u);
++      if (permutation_length < 4u) {
++        continue;
++      }
++      float* samples = channel_data->Data();
++      const uint32_t swap_count = std::min<uint32_t>(32u,
++                                                     permutation_length / 2u);
++      for (uint32_t swap = 0; swap < swap_count; ++swap) {
++        state = NextRenderIdentityState(state);
++        const uint32_t first = state % permutation_length;
++        state = NextRenderIdentityState(state);
++        uint32_t second = state % permutation_length;
++        for (uint32_t retry = 0;
++             retry < 4u &&
++             (second == first || samples[second] == samples[first]);
++             ++retry) {
++          state = NextRenderIdentityState(state);
++          second = state % permutation_length;
++        }
++        if (second != first && std::isfinite(samples[first]) &&
++            std::isfinite(samples[second]) &&
++            samples[first] != samples[second]) {
++          std::swap(samples[first], samples[second]);
++        }
++      }
++      continue;
++    }
+     const uint32_t stride = 89u + (state % 29u);
+     for (uint32_t index = 23u + (state % 53u);
+          index < channel_data->length(); index += stride) {

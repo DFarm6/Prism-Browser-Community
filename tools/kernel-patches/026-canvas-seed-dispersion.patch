@@ -1,0 +1,42 @@
+--- a/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
++++ b/third_party/blink/renderer/modules/canvas/canvas2d/base_rendering_context_2d.cc
+@@ -115,7 +115,7 @@ class MemoryManagedPaintCanvas;
+ 
+ namespace {
+ 
+-double PrismCanvasTextOffset() {
++double PrismCanvasTextOffset(uint32_t salt) {
+   const base::CommandLine* command_line =
+       base::CommandLine::ForCurrentProcess();
+   if (command_line->GetSwitchValueASCII(
+@@ -128,7 +128,7 @@ double PrismCanvasTextOffset() {
+           &fingerprint)) {
+     return 0;
+   }
+-  uint32_t state = fingerprint ^ 0x27d4eb2du;
++  uint32_t state = fingerprint ^ salt;
+   state ^= state >> 16;
+   state *= 0x7feb352du;
+   state ^= state >> 15;
+@@ -136,9 +136,6 @@ double PrismCanvasTextOffset() {
+   state ^= state >> 16;
+-  constexpr uint32_t kCanvasNoiseMask = 0xffffu;
+-  const double normalized =
+-      static_cast<double>(state & kCanvasNoiseMask) /
+-      static_cast<double>(kCanvasNoiseMask);
+-  return (1.0 + 7.0 * normalized) / 64.0;
++  constexpr uint32_t kCanvasOffsetMask = 0x0fu;
++  return static_cast<double>(1u + (state & kCanvasOffsetMask)) / 64.0;
+ }
+ 
+ wgpu::TextureFormat AsDawnType(const viz::SharedImageFormat& format) {
+@@ -1063,7 +1060,8 @@ void BaseRenderingContext2D::DrawTextInternal(
+   if (!std::isfinite(x) || !std::isfinite(y)) {
+     return;
+   }
+-  x += PrismCanvasTextOffset();
++  x += PrismCanvasTextOffset(0x27d4eb2du);
++  y += PrismCanvasTextOffset(0x165667b1u);
+   if (max_width && (!std::isfinite(*max_width) || *max_width <= 0)) {
+     return;
+   }

@@ -1,0 +1,128 @@
+{
+  "name": "prism-browser",
+  "version": "0.2.0-beta.1",
+  "private": true,
+  "author": {
+    "name": "DFarm",
+    "url": "https://x.com/DFarm_club"
+  },
+  "description": "Open-source local-first multi-profile fingerprint browser",
+  "main": "out/main/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "npm run typecheck && electron-vite build",
+    "dist:mac": "npm run build && electron-builder --mac dmg zip",
+    "dist:win": "npm run build && electron-builder --win msi portable zip --x64",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run typecheck && vitest run --fileParallelism=false && npm run kernel:verify-lock",
+    "test:lifecycle": "vitest run --fileParallelism=false src/main/app-session.test.ts src/main/browser-launcher.test.ts src/main/process-inspector.integration.test.ts",
+    "test:watch": "vitest",
+    "audit:fingerprint": "node tools/fingerprint-audit/run.mjs",
+    "audit:pixelscan": "node tools/pixelscan-online-probe/run.mjs",
+    "audit:fingerprint-matrix": "node tools/fingerprint-matrix/run.mjs",
+    "audit:network": "node tools/network-audit/run.mjs",
+    "audit:profile-data": "node tools/profile-data-audit/run.mjs",
+    "audit:stress": "node tools/multi-profile-stress/run.mjs",
+    "audit:app-e2e": "node tools/app-e2e/run.mjs",
+    "accept:windows": "node tools/windows-acceptance/run.cjs",
+    "accept:local-summary": "node tools/local-acceptance/aggregate.mjs",
+    "analyze:soak": "node tools/runtime-soak/analyze.cjs",
+    "kernel:verify-lock": "node tools/kernel-maintenance/run.mjs verify-lock",
+    "kernel:probe-upstream": "node tools/kernel-maintenance/run.mjs probe-upstream --output release/kernel-upstream.json",
+    "kernel:export-kits": "node tools/kernel-maintenance/run.mjs export-kits --kits-output release/kernel-build-kits",
+    "release:update-manifest": "node tools/release/create-update-manifest.mjs",
+    "beta:export-kit": "node tools/beta-acceptance/export-kit.mjs",
+    "beta:verify-kit": "node tools/beta-acceptance/verify-kit.mjs",
+    "beta:verify-candidate": "node tools/release/verify-update-candidate.mjs",
+    "beta:validate-evidence": "node tools/beta-acceptance/validate-evidence.mjs"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.1.0",
+    "@modelcontextprotocol/server": "^2.0.0",
+    "antd": "^6.1.3",
+    "proxy-chain": "^2.6.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "undici": "^7.29.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "^2.0.0",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.1.0",
+    "electron": "^43.2.0",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^4.0.0",
+    "esbuild": "^0.25.12",
+    "postject": "^1.0.0-alpha.6",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.0",
+    "vitest": "^4.0.0"
+  },
+  "overrides": {
+    "nanoid": "3.3.18"
+  },
+  "build": {
+    "appId": "com.prismbrowser.desktop",
+    "productName": "Prism Browser",
+    "copyright": "Copyright © 2026 Prism Browser. All rights reserved.",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
+      "signIgnore": "[/\\\\]Contents[/\\\\]Resources[/\\\\](?:kernels[/\\\\](?:current|available[/\\\\]\\d+(?:\\.\\d+){3})[/\\\\]Chromium\\.app|pro-agent[/\\\\]prism-pro-agent(?:-[A-Za-z0-9._-]+)?)(?:[/\\\\]|$)"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "signtoolOptions": {
+        "signingHashAlgorithms": [
+          "sha256"
+        ]
+      },
+      "target": [
+        "msi",
+        "portable",
+        "zip"
+      ]
+    },
+    "msi": {
+      "artifactName": "${productName} Setup ${version}.${ext}",
+      "oneClick": false,
+      "runAfterFinish": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Prism Browser"
+    },
+    "portable": {
+      "artifactName": "${productName} ${version}.${ext}"
+    }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DFarm6/Prism-Browser-Community.git"
+  },
+  "homepage": "https://github.com/DFarm6/Prism-Browser-Community#readme",
+  "bugs": {
+    "url": "https://github.com/DFarm6/Prism-Browser-Community/issues"
+  }
+}

@@ -1,0 +1,74 @@
+--- a/third_party/blink/renderer/core/dom/element.cc
++++ b/third_party/blink/renderer/core/dom/element.cc
+@@ -3257,8 +3257,9 @@ Vector<gfx::RectF> Element::GetClientRectsNoAdjustment() {
+   Vector<gfx::RectF> result;
+   for (auto& quad : quads) {
+     if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled() ||
+-        GetDocument().GetNoiseFactorX() != 1.0 ||
+-        GetDocument().GetNoiseFactorY() != 1.0) {
++        ((GetDocument().GetNoiseFactorX() != 1.0 ||
++          GetDocument().GetNoiseFactorY() != 1.0) &&
++         quad.IsRectilinear())) {
+       quad.Scale(GetDocument().GetNoiseFactorX(), GetDocument().GetNoiseFactorY());
+     }
+     result.emplace_back(quad.BoundingBox());
+@@ -3291,9 +3292,19 @@ gfx::RectF Element::GetBoundingClientRectNoLifecycleUpdate() const {
+   DCHECK(element_layout_object);
+   GetDocument().AdjustRectForScrollAndAbsoluteZoom(result,
+                                                    *element_layout_object);
++  Vector<gfx::QuadF> source_quads;
++  ClientQuads(source_quads);
++  bool has_transformed_geometry = false;
++  for (const gfx::QuadF& quad : source_quads) {
++    if (!quad.IsRectilinear()) {
++      has_transformed_geometry = true;
++      break;
++    }
++  }
+   if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled() ||
+-      GetDocument().GetNoiseFactorX() != 1.0 ||
+-      GetDocument().GetNoiseFactorY() != 1.0) {
++      ((GetDocument().GetNoiseFactorX() != 1.0 ||
++        GetDocument().GetNoiseFactorY() != 1.0) &&
++       !has_transformed_geometry)) {
+     result.Scale(GetDocument().GetNoiseFactorX(), GetDocument().GetNoiseFactorY());
+   }
+   return result;
+--- a/third_party/blink/renderer/core/dom/range.cc
++++ b/third_party/blink/renderer/core/dom/range.cc
+@@ -1658,8 +1658,11 @@ DOMRectList* Range::getClientRects() const {
+       owner_document_->GetNoiseFactorX() != 1.0 ||
+       owner_document_->GetNoiseFactorY() != 1.0) {
+     for (gfx::QuadF& quad : quads) {
+-      quad.Scale(owner_document_->GetNoiseFactorX(),
+-                 owner_document_->GetNoiseFactorY());
++      if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled() ||
++          quad.IsRectilinear()) {
++        quad.Scale(owner_document_->GetNoiseFactorX(),
++                   owner_document_->GetNoiseFactorY());
++      }
+     }
+   }
+ 
+@@ -1669,9 +1672,19 @@ DOMRect* Range::getBoundingClientRect() const {
+   // impact is understood.
+   SyncScrollAttemptHeuristic::DidAccessScrollOffset();
+   auto rect = BoundingRect();
++  Vector<gfx::QuadF> source_quads;
++  GetBorderAndTextQuads(source_quads);
++  bool has_transformed_geometry = false;
++  for (const gfx::QuadF& quad : source_quads) {
++    if (!quad.IsRectilinear()) {
++      has_transformed_geometry = true;
++      break;
++    }
++  }
+   if (RuntimeEnabledFeatures::FingerprintingClientRectsNoiseEnabled() ||
+-      owner_document_->GetNoiseFactorX() != 1.0 ||
+-      owner_document_->GetNoiseFactorY() != 1.0) {
++      ((owner_document_->GetNoiseFactorX() != 1.0 ||
++        owner_document_->GetNoiseFactorY() != 1.0) &&
++       !has_transformed_geometry)) {
+     rect.Scale(owner_document_->GetNoiseFactorX(),
+                owner_document_->GetNoiseFactorY());
+   }

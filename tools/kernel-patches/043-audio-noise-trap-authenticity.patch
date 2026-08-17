@@ -1,0 +1,40 @@
+--- a/third_party/blink/renderer/modules/webaudio/offline_audio_context.cc
++++ b/third_party/blink/renderer/modules/webaudio/offline_audio_context.cc
+@@ -95,25 +95,33 @@
+       // Reordering existing values before that native calibration window keeps
+       // the multiset, sum and extrema intact while retaining a stable,
+       // profile-specific sequence identity.
+-      const uint32_t permutation_length =
++      // CreepJS also treats any non-zero sample among indices [0, 100) as an
++      // AudioBuffer noise trap. Keep that native leading silence untouched;
++      // moving a later waveform sample into it is observable tampering even
++      // though the full-buffer statistics remain unchanged.
++      const uint32_t permutation_begin =
++          std::min<uint32_t>(channel_data->length(), 100u);
++      const uint32_t permutation_end =
+           std::min<uint32_t>(channel_data->length(), 4096u);
++      const uint32_t permutation_length = permutation_end - permutation_begin;
+       if (permutation_length < 4u) {
+         continue;
+       }
+       float* samples = channel_data->Data();
+       const uint32_t swap_count = std::min<uint32_t>(32u,
+                                                      permutation_length / 2u);
+       for (uint32_t swap = 0; swap < swap_count; ++swap) {
+         state = NextRenderIdentityState(state);
+-        const uint32_t first = state % permutation_length;
++        const uint32_t first =
++            permutation_begin + (state % permutation_length);
+         state = NextRenderIdentityState(state);
+-        uint32_t second = state % permutation_length;
++        uint32_t second = permutation_begin + (state % permutation_length);
+         for (uint32_t retry = 0;
+              retry < 4u &&
+              (second == first || samples[second] == samples[first]);
+              ++retry) {
+           state = NextRenderIdentityState(state);
+-          second = state % permutation_length;
++          second = permutation_begin + (state % permutation_length);
+         }
+         if (second != first && std::isfinite(samples[first]) &&
+             std::isfinite(samples[second]) &&

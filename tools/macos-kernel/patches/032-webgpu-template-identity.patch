@@ -1,0 +1,84 @@
+--- a/third_party/blink/renderer/modules/webgpu/gpu_adapter.cc
++++ b/third_party/blink/renderer/modules/webgpu/gpu_adapter.cc
+@@ -4,6 +4,11 @@
+ 
+ #include "third_party/blink/renderer/modules/webgpu/gpu_adapter.h"
+ 
++#include "base/command_line.h"
++#include "base/strings/string_number_conversions.h"
++#include "base/strings/string_util.h"
++#include "components/ungoogled/fingerprint_data.h"
++#include "components/ungoogled/ungoogled_switches.h"
+ #include "services/metrics/public/cpp/ukm_builders.h"
+ #include "third_party/blink/renderer/bindings/core/v8/script_promise_resolver.h"
+ #include "third_party/blink/renderer/bindings/core/v8/v8_object_builder.h"
+@@ -27,6 +32,61 @@ namespace blink {
+ 
+ namespace {
+ 
++bool PrismGpuSpoofingDisabled(const base::CommandLine& command_line) {
++  return command_line.HasSwitch(switches::kDisableSpoofing) &&
++         command_line.GetSwitchValueASCII(switches::kDisableSpoofing)
++                 .find("gpu") != std::string::npos;
++}
++
++String PrismWindowsWebGpuArchitecture(const char* model_name) {
++  const std::string model(model_name);
++  if (base::StartsWith(model, "GeForce RTX 30")) {
++    return "ampere";
++  }
++  if (base::StartsWith(model, "GeForce RTX 40")) {
++    return "ada";
++  }
++  if (base::StartsWith(model, "GeForce RTX 50")) {
++    return "blackwell";
++  }
++  return String();
++}
++
++void ApplyPrismWebGpuTemplateIdentity(String* vendor,
++                                      String* architecture) {
++  const base::CommandLine* command_line =
++      base::CommandLine::ForCurrentProcess();
++  if (command_line->GetSwitchValueASCII(
++          switches::kFingerprintRenderIdentity) != "v4" ||
++      PrismGpuSpoofingDisabled(*command_line)) {
++    return;
++  }
++
++  uint32_t fingerprint = 0;
++  if (!base::StringToUint(
++          command_line->GetSwitchValueASCII(switches::kFingerprint),
++          &fingerprint)) {
++    return;
++  }
++
++  const std::string platform = base::ToLowerASCII(
++      command_line->GetSwitchValueASCII(switches::kFingerprintPlatform));
++  if (platform == "windows") {
++    const auto& model = ungoogled::fingerprint::kGpuModels[
++        fingerprint % ungoogled::fingerprint::kGpuModelCount];
++    const String prism_architecture =
++        PrismWindowsWebGpuArchitecture(model.model_name);
++    if (!prism_architecture.empty()) {
++      *vendor = "nvidia";
++      *architecture = prism_architecture;
++    }
++  } else if (platform == "macos") {
++    // Dawn reports a Metal feature-family architecture rather than the Apple
++    // marketing model. Preserve that native value while aligning the vendor.
++    *vendor = "apple";
++  }
++}
++
+ GPUSupportedFeatures* MakeFeatureNameSet(wgpu::Adapter adapter) {
+   GPUSupportedFeatures* features = MakeGarbageCollected<GPUSupportedFeatures>();
+   DCHECK(features->FeatureNameSet().empty());
+@@ -103,6 +163,7 @@ GPUAdapter::GPUAdapter(
+   }
+   description_ = String::FromUTF8(info.device);
+   driver_ = String::FromUTF8(info.description);
++  ApplyPrismWebGpuTemplateIdentity(&vendor_, &architecture_);
+   if (supportsPropertiesD3D) {
+     d3d_shader_model_ = d3dProperties.shaderModel;
+   }
